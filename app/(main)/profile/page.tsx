@@ -9,7 +9,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Header } from "@/components/layout/header";
-import { RefreshCw, LogOut } from "lucide-react";
+import { RefreshCw, LogOut, Settings } from "lucide-react";
+import Link from "next/link";
 import { toast } from "sonner";
 import { api } from "@/lib/api-client";
 
@@ -19,6 +20,7 @@ interface Profile {
   banner_url?: string;
   email?: string;
   phone?: string;
+  scope?: string;
 }
 
 export default function ProfilePage() {
@@ -242,6 +244,15 @@ export default function ProfilePage() {
             )}
           </CardContent>
         </Card>
+
+        {profile.scope?.includes("audit:write") && (
+          <Button variant="outline" className="w-full" asChild>
+            <Link href="/dashboard/audit">
+              <Settings className="mr-2 h-4 w-4" />
+              管理后台
+            </Link>
+          </Button>
+        )}
 
         <Separator />
 

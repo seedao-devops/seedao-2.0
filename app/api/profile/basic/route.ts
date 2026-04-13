@@ -36,6 +36,7 @@ export async function GET(request: NextRequest) {
     ...profile,
     email: user?.email,
     phone: user?.phone,
+    scope: user?.scope,
   });
 }
 

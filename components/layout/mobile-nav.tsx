@@ -6,9 +6,9 @@ import { BookOpen, GraduationCap, User, Compass } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const navItems = [
-  { href: "/handbook", label: "手册", icon: BookOpen },
   { href: "/co-learning", label: "共学", icon: Compass },
   { href: "/profile/skills", label: "技能", icon: GraduationCap },
+  { href: "/handbook", label: "手册", icon: BookOpen },
   { href: "/profile", label: "我的", icon: User },
 ];
 
