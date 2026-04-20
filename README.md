@@ -70,6 +70,12 @@ npm run start    # serve production build
 npm run lint     # eslint
 ```
 
+## Documentation
+
+- [`docs/ui.md`](./docs/ui.md) — page-by-page UI component checklist
+- [`docs/api.md`](./docs/api.md) — API endpoint reference
+- [`docs/testing.md`](./docs/testing.md) — test accounts and manual test scenarios
+
 ## Customizing the design system
 
 Edit `lib/design-tokens.ts` and the matching CSS variables in `app/globals.css`. Both light and dark palettes are defined in `oklch`. Fonts (Noto Sans SC, Noto Serif SC, Geist Mono) are wired up in `app/layout.tsx`.
