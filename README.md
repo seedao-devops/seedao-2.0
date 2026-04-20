@@ -1,36 +1,78 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# SeeDAO 2.0
 
-## Getting Started
+A community platform for nomads & in-place co-creators built on Next.js 16, React 19, Tailwind v4 and shadcn/ui.
 
-First, run the development server:
+## Features
+
+- **Public landing, base explorer, co-learning calendar** — accessible to guests.
+- **Registered users** — submit applications (with payment + DID flow), edit a multi-section "我的旅程" profile, manage privacy and share via QR.
+- **Admin dashboard** at `/admin` — application review, refunds, DID assignment, base CRUD, co-learning event CRUD.
+- Mobile-first user UI / desktop-first admin UI.
+- Centralized design tokens in `lib/design-tokens.ts` — change colors and fonts in one place.
+- File-based fake DB in `.data/` for prototyping. Drop in a real database by re-implementing `lib/features/_shared/fake-db.ts`.
+
+## Quick start
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### Seed demo data
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```bash
+curl 'http://localhost:3000/api/_dev/seed?reset=1'
+```
 
-## Learn More
+Returns demo credentials:
 
-To learn more about Next.js, take a look at the following resources:
+- **Admin** — `admin@seedao.local` / `admin123` (login at `/admin/login`)
+- **Alice** (approved user) — `alice@seedao.local` / `hello123`
+- **Bob** (pending application) — `+8613800000002` / `hello123`
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+The seed endpoint is dev-only (returns 403 in production).
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Project structure
 
-## Deploy on Vercel
+```
+app/
+  (public)/         # mobile-first guest pages: landing, bases, co-learning, share
+  (auth)/           # login + register
+  (user)/           # authenticated user pages: /journey, /account
+  admin/
+    login/          # admin login (separate entrypoint)
+    (authed)/       # admin dashboard, applications, refunds, dids, bases, co-learning
+  api/              # route handlers
+lib/
+  design-tokens.ts  # single source of truth for colors / fonts / radii / spacing
+  features/         # feature-sliced repos + zod schemas
+    _shared/        # enums, fake-db, validators
+    auth/ applications/ journey/ bases/ co-learning/
+components/
+  ui/               # shadcn primitives
+  layout/           # user-shell, admin-shell, navs
+  features/         # feature-specific UI components
+proxy.ts            # role-based access control (Next.js 16 proxy/middleware)
+```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Scripts
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```bash
+npm run dev      # dev server
+npm run build    # production build
+npm run start    # serve production build
+npm run lint     # eslint
+```
+
+## Customizing the design system
+
+Edit `lib/design-tokens.ts` and the matching CSS variables in `app/globals.css`. Both light and dark palettes are defined in `oklch`. Fonts (Noto Sans SC, Noto Serif SC, Geist Mono) are wired up in `app/layout.tsx`.
+
+## Adding a new feature
+
+1. Create `lib/features/<name>/` with `schema.ts` (zod), `repo.ts` (fake-db access).
+2. Add API routes under `app/api/<name>/`.
+3. Add UI under `components/features/<name>/` and pages in the relevant route group.
+4. Optionally add a tag/enum in `lib/features/_shared/enums.ts`.

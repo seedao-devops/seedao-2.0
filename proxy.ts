@@ -1,43 +1,53 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
+import { COOKIE_NAME, verifySession } from "@/lib/features/auth/jwt";
 
-export function proxy(request: NextRequest) {
-  const token = request.cookies.get("auth_token")?.value;
+const ADMIN_PUBLIC = ["/admin/login"];
+const USER_PROTECTED = ["/journey", "/account"];
+
+export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
+  const token = request.cookies.get(COOKIE_NAME)?.value;
+  const session = token ? await verifySession(token) : null;
 
-  if (pathname.startsWith("/api/admin/")) {
-    if (!token) {
-      return NextResponse.json({ error: "UNAUTHORIZED" }, { status: 401 });
-    }
-    try {
-      const payload = JSON.parse(
-        Buffer.from(token.split(".")[1], "base64url").toString("utf-8")
-      );
-      if (
-        pathname.startsWith("/api/admin/audit/") &&
-        payload.scope !== "audit:write"
-      ) {
-        return NextResponse.json({ error: "FORBIDDEN" }, { status: 403 });
+  // Admin namespace: separate guard, separate login.
+  if (pathname.startsWith("/admin")) {
+    const isAdminLogin = ADMIN_PUBLIC.some(
+      (p) => pathname === p || pathname.startsWith(`${p}/`),
+    );
+    if (isAdminLogin) {
+      if (session?.role === "admin") {
+        return NextResponse.redirect(new URL("/admin", request.url));
       }
-    } catch {
-      return NextResponse.json({ error: "INVALID_TOKEN" }, { status: 401 });
+      return NextResponse.next();
     }
+    if (!session || session.role !== "admin") {
+      return NextResponse.redirect(new URL("/admin/login", request.url));
+    }
+    return NextResponse.next();
   }
 
-  const protectedPaths = ["/profile", "/dashboard"];
-  const isProtected = protectedPaths.some((p) => pathname.startsWith(p));
-
-  if (isProtected && !token) {
-    const loginUrl = new URL("/login", request.url);
-    loginUrl.searchParams.set("redirect", pathname);
-    return NextResponse.redirect(loginUrl);
+  // Admin-only API.
+  if (pathname.startsWith("/api/admin")) {
+    if (!session || session.role !== "admin") {
+      return NextResponse.json({ error: "FORBIDDEN" }, { status: 403 });
+    }
+    return NextResponse.next();
   }
 
-  const authPaths = ["/login", "/register", "/verify"];
-  const isAuthPage = authPaths.some((p) => pathname === p);
+  // User-protected pages.
+  const isProtected = USER_PROTECTED.some(
+    (p) => pathname === p || pathname.startsWith(`${p}/`),
+  );
+  if (isProtected && !session) {
+    const url = new URL("/login", request.url);
+    url.searchParams.set("redirect", pathname);
+    return NextResponse.redirect(url);
+  }
 
-  if (isAuthPage && token) {
-    return NextResponse.redirect(new URL("/profile", request.url));
+  // Already-authed users shouldn't hit /login or /register.
+  if (session && session.role === "user" && (pathname === "/login")) {
+    return NextResponse.redirect(new URL("/journey", request.url));
   }
 
   return NextResponse.next();
@@ -45,11 +55,10 @@ export function proxy(request: NextRequest) {
 
 export const config = {
   matcher: [
-    "/profile/:path*",
-    "/dashboard/:path*",
+    "/journey/:path*",
+    "/account/:path*",
     "/login",
-    "/register",
-    "/verify",
+    "/admin/:path*",
     "/api/admin/:path*",
   ],
 };

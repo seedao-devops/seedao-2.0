@@ -1,11 +1,16 @@
+import Link from "next/link";
+
 export default function AuthLayout({
   children,
-}: {
-  children: React.ReactNode;
-}) {
+}: Readonly<{ children: React.ReactNode }>) {
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center p-4">
-      <div className="w-full max-w-sm">{children}</div>
+    <div className="mx-auto w-full max-w-md min-h-dvh flex flex-col bg-background">
+      <header className="px-5 py-4">
+        <Link href="/" className="text-lg font-serif font-bold tracking-tight">
+          SeeDAO
+        </Link>
+      </header>
+      <main className="flex-1 px-5 pb-10">{children}</main>
     </div>
   );
 }

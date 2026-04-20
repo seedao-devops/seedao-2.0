@@ -1,79 +1,149 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { toast } from "sonner";
+import { loginSchema, type LoginInput } from "@/lib/features/auth/schema";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { toast } from "sonner";
-import { api } from "@/lib/api-client";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 
 export default function LoginPage() {
   const router = useRouter();
-  const [loading, setLoading] = useState(false);
-  const [form, setForm] = useState({ email: "", password: "" });
+  const search = useSearchParams();
+  const redirect = search.get("redirect") || "/journey";
+  const [submitting, setSubmitting] = useState(false);
+  const [tab, setTab] = useState<"phone" | "email">("phone");
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
+  const form = useForm<LoginInput>({
+    resolver: zodResolver(loginSchema),
+    defaultValues: { phone: "", email: "", password: "" },
+  });
+
+  async function onSubmit(values: LoginInput) {
+    setSubmitting(true);
     try {
-      const { data } = await api.post<{ user: { status: string } }>(
-        "/api/auth/login",
-        form
-      );
-      toast.success("登录成功");
-      if (data.user.status === "PENDING_AUDIT") {
-        toast.info("您的账号正在审核中");
+      const body =
+        tab === "phone"
+          ? { phone: values.phone, password: values.password }
+          : { email: values.email, password: values.password };
+      const res = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify(body),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        toast.error("登录失败，请检查账号与密码");
+        return;
       }
-      router.push("/profile");
-    } catch (err) {
-      toast.error(err instanceof Error ? err.message : "登录失败");
+      if (data.role === "admin") {
+        router.push("/admin/applications");
+      } else {
+        router.push(redirect);
+      }
+      router.refresh();
     } finally {
-      setLoading(false);
+      setSubmitting(false);
     }
-  };
+  }
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="text-center text-2xl">登录</CardTitle>
-      </CardHeader>
-      <CardContent>
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="email">邮箱</Label>
-            <Input
-              id="email"
-              type="email"
-              placeholder="your@email.com"
-              value={form.email}
-              onChange={(e) => setForm({ ...form, email: e.target.value })}
-              required
+    <div className="space-y-8 pt-2">
+      <div className="space-y-2">
+        <h1 className="text-3xl font-serif font-bold">欢迎回来</h1>
+        <p className="text-sm text-muted-foreground">登录后查看你的旅程</p>
+      </div>
+      <Tabs value={tab} onValueChange={(v) => setTab(v as "phone" | "email")}>
+        <TabsList className="grid grid-cols-2 w-full">
+          <TabsTrigger value="phone">手机号</TabsTrigger>
+          <TabsTrigger value="email">邮箱</TabsTrigger>
+        </TabsList>
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 pt-5">
+            <TabsContent value="phone" className="m-0">
+              <FormField
+                control={form.control}
+                name="phone"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>手机号</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="tel"
+                        inputMode="numeric"
+                        placeholder="13800138000"
+                        autoComplete="tel"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </TabsContent>
+            <TabsContent value="email" className="m-0">
+              <FormField
+                control={form.control}
+                name="email"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>邮箱</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="email"
+                        autoComplete="username"
+                        placeholder="you@example.com"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </TabsContent>
+
+            <FormField
+              control={form.control}
+              name="password"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>密码</FormLabel>
+                  <FormControl>
+                    <Input
+                      type="password"
+                      autoComplete="current-password"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
             />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="password">密码</Label>
-            <Input
-              id="password"
-              type="password"
-              value={form.password}
-              onChange={(e) => setForm({ ...form, password: e.target.value })}
-              required
-            />
-          </div>
-          <Button type="submit" className="w-full" disabled={loading}>
-            {loading ? "登录中..." : "登录"}
-          </Button>
-        </form>
-        <p className="mt-4 text-center text-sm text-muted-foreground">
-          还没有账号？{" "}
-          <Link href="/register" className="text-primary underline">
-            注册
-          </Link>
-        </p>
-      </CardContent>
-    </Card>
+
+            <Button type="submit" className="w-full" disabled={submitting}>
+              {submitting ? "登录中..." : "登录"}
+            </Button>
+          </form>
+        </Form>
+      </Tabs>
+      <p className="text-sm text-center text-muted-foreground">
+        还没有账户？
+        <Link href="/register" className="text-primary font-medium ml-1 hover:underline">
+          申请加入
+        </Link>
+      </p>
+    </div>
   );
 }
