@@ -20,19 +20,23 @@ npm run dev
 
 Open [http://localhost:3000](http://localhost:3000).
 
-### Seed demo data
+### Demo accounts (dev only)
+
+The login pages show a yellow "开发环境一键登录" panel with one-click buttons for the demo accounts. Clicking a button auto-seeds the fake DB on first use.
+
+| Account | Credentials | Where |
+|--------|-------------|-------|
+| Admin | `admin@seedao.local` / `admin123` | `/admin/login` |
+| Alice (approved user with full journey) | `alice@seedao.local` / `hello123` | `/login` |
+| Bob (application pending review) | `+8613800000002` / `hello123` | `/login` |
+
+You can also manually reset all demo data:
 
 ```bash
-curl 'http://localhost:3000/api/_dev/seed?reset=1'
+curl 'http://localhost:3000/api/dev/seed?reset=1'
 ```
 
-Returns demo credentials:
-
-- **Admin** — `admin@seedao.local` / `admin123` (login at `/admin/login`)
-- **Alice** (approved user) — `alice@seedao.local` / `hello123`
-- **Bob** (pending application) — `+8613800000002` / `hello123`
-
-The seed endpoint is dev-only (returns 403 in production).
+Both `/api/dev/seed` and `/api/dev/login-as` return 403 in production builds.
 
 ## Project structure
 

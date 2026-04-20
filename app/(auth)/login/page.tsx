@@ -18,6 +18,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { DevQuickLogin } from "@/components/features/auth/dev-quick-login";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -144,6 +145,7 @@ export default function LoginPage() {
           申请加入
         </Link>
       </p>
+      <DevQuickLogin filter="user" redirect={redirect} />
     </div>
   );
 }

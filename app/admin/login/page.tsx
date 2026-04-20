@@ -17,6 +17,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Card } from "@/components/ui/card";
+import { DevQuickLogin } from "@/components/features/auth/dev-quick-login";
 
 const adminLoginSchema = z.object({
   email: z.string().email("请输入有效邮箱"),
@@ -98,6 +99,7 @@ export default function AdminLoginPage() {
             </Button>
           </form>
         </Form>
+        <DevQuickLogin filter="admin" redirect="/admin" />
       </Card>
     </div>
   );

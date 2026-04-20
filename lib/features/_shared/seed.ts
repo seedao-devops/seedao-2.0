@@ -1,56 +1,81 @@
 /**
- * Dev-only seed endpoint.
- * GET /api/_dev/seed?reset=1   (reset=1 wipes existing data first)
+ * Idempotent demo seed for the file-based fake DB.
  *
- * Disabled when NODE_ENV === "production".
+ * Used by:
+ *   - GET /api/_dev/seed?reset=1   (manual reset)
+ *   - GET /api/_dev/login-as       (auto-seeds if users table is empty)
+ *
+ * Three demo accounts:
+ *   admin@seedao.local / admin123      (admin)
+ *   alice@seedao.local / hello123      (approved user with full journey)
+ *   +8613800000002    / hello123       (pending application)
  */
-import { NextResponse } from "next/server";
+
 import bcrypt from "bcryptjs";
 import { nanoid } from "nanoid";
-import { saveTable, type Schema } from "@/lib/features/_shared/fake-db";
+import { getTable, saveTable, type Schema } from "./fake-db";
 
-export async function GET(req: Request) {
-  if (process.env.NODE_ENV === "production") {
-    return NextResponse.json({ error: "DISABLED" }, { status: 403 });
-  }
-  const { searchParams } = new URL(req.url);
-  const reset = searchParams.get("reset") === "1";
-  if (!reset) {
-    return NextResponse.json({
-      hint: "Append ?reset=1 to wipe and reseed all tables.",
-    });
-  }
+export const DEMO_ACCOUNTS = {
+  admin: {
+    id: "admin_seed",
+    label: "Admin",
+    email: "admin@seedao.local",
+    password: "admin123",
+    role: "admin" as const,
+  },
+  alice: {
+    id: "user_alice",
+    label: "Alice (已通过)",
+    email: "alice@seedao.local",
+    password: "hello123",
+    role: "user" as const,
+  },
+  bob: {
+    id: "user_bob",
+    label: "Bob (审核中)",
+    phone: "+8613800000002",
+    password: "hello123",
+    role: "user" as const,
+  },
+} as const;
 
-  const adminId = "admin_seed";
-  const u1 = "user_alice";
-  const u2 = "user_bob";
+export type DemoAccountKey = keyof typeof DEMO_ACCOUNTS;
 
-  const adminHash = await bcrypt.hash("admin123", 10);
-  const aliceHash = await bcrypt.hash("hello123", 10);
-  const bobHash = await bcrypt.hash("hello123", 10);
+export async function isSeeded(): Promise<boolean> {
+  const users = await getTable("users");
+  return users.some((u) => u.id === DEMO_ACCOUNTS.admin.id);
+}
+
+export async function seedAll(): Promise<void> {
+  const [adminHash, aliceHash, bobHash] = await Promise.all([
+    bcrypt.hash(DEMO_ACCOUNTS.admin.password, 10),
+    bcrypt.hash(DEMO_ACCOUNTS.alice.password, 10),
+    bcrypt.hash(DEMO_ACCOUNTS.bob.password, 10),
+  ]);
+  const now = new Date().toISOString();
 
   const users: Schema["users"] = [
     {
-      id: adminId,
-      email: "admin@seedao.local",
+      id: DEMO_ACCOUNTS.admin.id,
+      email: DEMO_ACCOUNTS.admin.email,
       passwordHash: adminHash,
       role: "admin",
-      createdAt: new Date().toISOString(),
+      createdAt: now,
     },
     {
-      id: u1,
+      id: DEMO_ACCOUNTS.alice.id,
       phone: "+8613800000001",
-      email: "alice@seedao.local",
+      email: DEMO_ACCOUNTS.alice.email,
       passwordHash: aliceHash,
       role: "user",
-      createdAt: new Date().toISOString(),
+      createdAt: now,
     },
     {
-      id: u2,
-      phone: "+8613800000002",
+      id: DEMO_ACCOUNTS.bob.id,
+      phone: DEMO_ACCOUNTS.bob.phone,
       passwordHash: bobHash,
       role: "user",
-      createdAt: new Date().toISOString(),
+      createdAt: now,
     },
   ];
 
@@ -89,24 +114,12 @@ export async function GET(req: Request) {
         },
       ],
       timeline: [
-        {
-          id: "tl_dali_1",
-          emoji: "🌱",
-          date: "2024-03-15",
-          title: "基地成立",
-          description: "三位创始人在沙溪租下一座白族院落。",
-        },
-        {
-          id: "tl_dali_2",
-          emoji: "🎨",
-          date: "2025-07-01",
-          title: "首期扎染共学",
-          description: "邀请本地匠人与 12 位游民共学。",
-        },
+        { id: "tl_dali_1", emoji: "🌱", date: "2024-03-15", title: "基地成立", description: "三位创始人在沙溪租下一座白族院落。" },
+        { id: "tl_dali_2", emoji: "🎨", date: "2025-07-01", title: "首期扎染共学", description: "邀请本地匠人与 12 位游民共学。" },
       ],
       lat: 26.55,
       lng: 99.85,
-      createdAt: new Date().toISOString(),
+      createdAt: now,
     },
     {
       id: "base_xiamen",
@@ -126,17 +139,11 @@ export async function GET(req: Request) {
       skillsNeeded: ["插画", "设计"],
       localProjects: [],
       timeline: [
-        {
-          id: "tl_xm_1",
-          emoji: "🐚",
-          date: "2025-01-10",
-          title: "海洋影像季",
-          description: "以海洋为主题的纪录片创作。",
-        },
+        { id: "tl_xm_1", emoji: "🐚", date: "2025-01-10", title: "海洋影像季", description: "以海洋为主题的纪录片创作。" },
       ],
       lat: 24.45,
       lng: 118.1,
-      createdAt: new Date().toISOString(),
+      createdAt: now,
     },
     {
       id: "base_anji",
@@ -158,7 +165,7 @@ export async function GET(req: Request) {
       timeline: [],
       lat: 30.62,
       lng: 119.68,
-      createdAt: new Date().toISOString(),
+      createdAt: now,
     },
   ];
 
@@ -195,7 +202,7 @@ export async function GET(req: Request) {
   const applications: Schema["applications"] = [
     {
       id: nanoid(10),
-      userId: u1,
+      userId: DEMO_ACCOUNTS.alice.id,
       nickname: "Alice",
       selfIntro: "在阿那亚做过 3 年共创社，希望加入 SeeDAO。",
       interestTags: ["在地共创", "教育共学", "写作出版"],
@@ -204,13 +211,13 @@ export async function GET(req: Request) {
       reviewStatus: "APPROVED",
       submittedAt: new Date(Date.now() - 86400000 * 5).toISOString(),
       reviewedAt: new Date(Date.now() - 86400000 * 3).toISOString(),
-      reviewerId: adminId,
+      reviewerId: DEMO_ACCOUNTS.admin.id,
       didStatus: "ASSIGNED",
       didInfo: "did:seedao:alice#1",
     },
     {
       id: nanoid(10),
-      userId: u2,
+      userId: DEMO_ACCOUNTS.bob.id,
       nickname: "Bob",
       selfIntro: "独立开发者，做过几个独立产品，现在想找个山里的基地长居。",
       interestTags: ["数字游民", "技术开发", "户外探险"],
@@ -222,7 +229,7 @@ export async function GET(req: Request) {
 
   const journeys: Schema["journeys"] = [
     {
-      userId: u1,
+      userId: DEMO_ACCOUNTS.alice.id,
       avatarUrl:
         "https://api.dicebear.com/9.x/lorelei/svg?seed=alice&backgroundColor=ffd5dc",
       displayName: "Alice",
@@ -257,7 +264,7 @@ export async function GET(req: Request) {
         works: true,
         wishToLearn: true,
       },
-      updatedAt: new Date().toISOString(),
+      updatedAt: now,
     },
   ];
 
@@ -268,20 +275,10 @@ export async function GET(req: Request) {
     saveTable("coLearningEvents", events),
     saveTable("journeys", journeys),
   ]);
+}
 
-  return NextResponse.json({
-    ok: true,
-    counts: {
-      users: users.length,
-      applications: applications.length,
-      bases: bases.length,
-      events: events.length,
-      journeys: journeys.length,
-    },
-    credentials: {
-      admin: { email: "admin@seedao.local", password: "admin123" },
-      alice: { email: "alice@seedao.local", password: "hello123" },
-      bob: { phone: "+8613800000002", password: "hello123" },
-    },
-  });
+export async function seedIfEmpty(): Promise<boolean> {
+  if (await isSeeded()) return false;
+  await seedAll();
+  return true;
 }

@@ -61,7 +61,10 @@ export default function RootLayout({
         />
         <link rel="stylesheet" href={FONTS_HREF} />
       </head>
-      <body className="min-h-full flex flex-col bg-background text-foreground">
+      <body
+        className="min-h-full flex flex-col bg-background text-foreground"
+        suppressHydrationWarning
+      >
         {children}
         <Toaster />
       </body>
