@@ -203,6 +203,7 @@ Validators (zod) live alongside each feature in `lib/features/<feature>/schema.t
 4. Validate input with `schema.safeParse(body)` — return `400 INVALID_INPUT` with the issues on failure.
 5. Add a row to this file.
 6. If a frontend page consumes it, link it in `docs/ui.md`.
+7. Tick (or add) the matching row in [`docs/journeys.md`](./journeys.md) so the release tracker stays accurate.
 
 ---
 

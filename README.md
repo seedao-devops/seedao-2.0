@@ -72,6 +72,7 @@ npm run lint     # eslint
 
 ## Documentation
 
+- [`docs/journeys.md`](./docs/journeys.md) — user-journey-based release tracker (start here for MVP v0.1 status) · [中文版](./docs/journeys.zh-CN.md)
 - [`docs/ui.md`](./docs/ui.md) — page-by-page UI component checklist
 - [`docs/api.md`](./docs/api.md) — API endpoint reference
 - [`docs/testing.md`](./docs/testing.md) — test accounts and manual test scenarios

@@ -204,3 +204,4 @@ When you add a new page:
 - [ ] Put feature-specific UI under `components/features/<feature>/`
 - [ ] Add an entry to this file under the appropriate section
 - [ ] Add a row to `docs/api.md` if you create new endpoints
+- [ ] Tick (or add) the matching row in [`docs/journeys.md`](./journeys.md) so the release tracker stays accurate
