@@ -5,8 +5,10 @@
  *
  * Access:
  *   - Dev (NODE_ENV !== "production"): always allowed.
- *   - Production: requires DEMO_RESET_TOKEN via `?token=...` (GET) or
- *     `Authorization: Bearer ...` / `{ token }` body field (POST).
+ *   - Production:
+ *       - If DEMO_PUBLIC=1 → always allowed (open-demo mode).
+ *       - Otherwise requires DEMO_RESET_TOKEN via `?token=...` (GET) or
+ *         `Authorization: Bearer ...` / `{ token }` body field (POST).
  */
 import { NextResponse } from "next/server";
 import {
@@ -20,6 +22,7 @@ export const runtime = "nodejs";
 
 function isAuthorized(req: Request, bodyToken?: string): boolean {
   if (process.env.NODE_ENV !== "production") return true;
+  if (process.env.DEMO_PUBLIC === "1") return true;
   const expected = process.env.DEMO_RESET_TOKEN;
   if (!expected) return false;
   const url = new URL(req.url);

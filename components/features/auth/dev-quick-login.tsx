@@ -15,9 +15,16 @@ const ACCOUNTS: Account[] = [
 ];
 
 /**
- * Dev-only quick-login panel. Renders nothing in production builds.
- * Click any account → sets the session cookie via /api/_dev/login-as
- * (auto-seeding the fake DB if it's empty), then redirects appropriately.
+ * Quick-login panel for demo accounts.
+ *
+ * Visibility:
+ *   - Always shown in dev (NODE_ENV !== "production").
+ *   - In prod, shown only when NEXT_PUBLIC_DEMO_PUBLIC=1 is baked into the
+ *     client bundle at build time. (Server-side counterpart: DEMO_PUBLIC=1 in
+ *     /api/dev/login-as. Both must be set for the buttons to work in prod.)
+ *
+ * Click any account → POST /api/dev/login-as { key } sets the session cookie
+ * (auto-seeds the DB if empty), then we redirect.
  */
 export function DevQuickLogin({
   filter = "all",
@@ -29,7 +36,9 @@ export function DevQuickLogin({
   const router = useRouter();
   const [busy, setBusy] = useState<string | null>(null);
 
-  if (process.env.NODE_ENV === "production") return null;
+  const isDev = process.env.NODE_ENV !== "production";
+  const isPublicDemo = process.env.NEXT_PUBLIC_DEMO_PUBLIC === "1";
+  if (!isDev && !isPublicDemo) return null;
 
   const accounts =
     filter === "all" ? ACCOUNTS : ACCOUNTS.filter((a) => a.role === filter);
@@ -60,7 +69,7 @@ export function DevQuickLogin({
     <div className="rounded-lg border border-dashed border-amber-400/60 bg-amber-50/60 p-3 space-y-2 text-amber-900 dark:bg-amber-900/10 dark:text-amber-200">
       <div className="flex items-center gap-1.5 text-xs font-medium">
         <Sparkles className="size-3.5" />
-        开发环境一键登录
+        演示账号一键登录
       </div>
       <div className="flex flex-wrap gap-2">
         {accounts.map((a) => (

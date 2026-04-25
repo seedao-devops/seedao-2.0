@@ -5,9 +5,11 @@
  *
  * Access:
  *   - Dev (NODE_ENV !== "production"): always allowed.
- *   - Production: requires a matching DEMO_RESET_TOKEN, supplied either as
- *     `?token=...` or `Authorization: Bearer ...`. If the env var is unset,
- *     the endpoint stays disabled in production.
+ *   - Production:
+ *       - If DEMO_PUBLIC=1 → always allowed (open-demo mode).
+ *       - Otherwise requires a matching DEMO_RESET_TOKEN, supplied either as
+ *         `?token=...` or `Authorization: Bearer ...`. If neither knob is
+ *         configured, the endpoint stays disabled in production.
  */
 import { NextResponse } from "next/server";
 import { DEMO_ACCOUNTS, isSeeded, seedAll } from "@/lib/features/_shared/seed";
@@ -16,6 +18,7 @@ export const runtime = "nodejs";
 
 function isAuthorized(req: Request): boolean {
   if (process.env.NODE_ENV !== "production") return true;
+  if (process.env.DEMO_PUBLIC === "1") return true;
   const expected = process.env.DEMO_RESET_TOKEN;
   if (!expected) return false;
   const url = new URL(req.url);

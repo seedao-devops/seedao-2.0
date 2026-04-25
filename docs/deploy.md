@@ -9,13 +9,13 @@ For the eventual production migration to a real DB, see [`docs/schema.md`](./sch
 
 ## What changes between local dev and the Vercel demo
 
-| Concern        | Local dev                 | Vercel demo                                         |
-| -------------- | ------------------------- | --------------------------------------------------- |
-| Storage        | JSON files in `.data/`    | Upstash Redis (one key per table)                   |
-| Selection      | Default                   | Auto-selected when `UPSTASH_REDIS_REST_URL` is set  |
-| Demo seed      | Manual via `?reset=1`     | Auto on first read when `AUTO_SEED=1`               |
-| Dev endpoints  | Open                      | Token-gated via `DEMO_RESET_TOKEN`                  |
-| Quick-login UI | Visible (yellow panel)    | Hidden (gated on `NODE_ENV !== "production"`)       |
+| Concern        | Local dev                 | Vercel demo                                                                          |
+| -------------- | ------------------------- | ------------------------------------------------------------------------------------ |
+| Storage        | JSON files in `.data/`    | Upstash Redis (one key per table)                                                    |
+| Selection      | Default                   | Auto-selected when `UPSTASH_REDIS_REST_URL` is set                                   |
+| Demo seed      | Manual via `?reset=1`     | Auto on first read when `AUTO_SEED=1`                                                |
+| Dev endpoints  | Open                      | Token-gated via `DEMO_RESET_TOKEN` (or open when `DEMO_PUBLIC=1`)                    |
+| Quick-login UI | Visible (yellow panel)    | Hidden by default; set `NEXT_PUBLIC_DEMO_PUBLIC=1` + `DEMO_PUBLIC=1` to enable      |
 
 Public API of the storage layer (`getTable / saveTable / updateTable` in
 [`lib/features/_shared/fake-db.ts`](../lib/features/_shared/fake-db.ts)) is
@@ -50,6 +50,25 @@ codebase reads them:
 - `KV_REST_API_READ_ONLY_TOKEN` — read-only token. The app does writes
   (seeds + journey edits + admin CRUD), so the full read/write token is
   required.
+
+### Optional: enable one-click demo logins
+
+If you want the yellow "演示账号一键登录" panel on `/login` and `/admin/login`
+to be visible to demo visitors, set **both** of these:
+
+| Variable                   | Where it's read                                                                       | Notes                                                                                                                  |
+| -------------------------- | ------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------- |
+| `DEMO_PUBLIC=1`            | Server: [`/api/dev/login-as`](../app/api/dev/login-as/route.ts) and [`/api/dev/seed`](../app/api/dev/seed/route.ts) | Skips the `DEMO_RESET_TOKEN` gate so the buttons can hit the API without a token.                                      |
+| `NEXT_PUBLIC_DEMO_PUBLIC=1` | Client bundle: [`DevQuickLogin`](../components/features/auth/dev-quick-login.tsx)    | `NEXT_PUBLIC_*` is inlined at **build time**, so you must redeploy after toggling. Otherwise the panel stays hidden.   |
+
+Both flags are required: the server one unlocks the API, the client one
+renders the panel. Setting only one results in either invisible buttons or
+buttons that 403.
+
+> **Do not enable this on a real audience.** With `DEMO_PUBLIC=1` anyone who
+> can load `/login` can take over `admin@seedao.local`. The whole point of
+> these flags is to make the demo "open" — your data is the seeded fixture
+> data and that's it.
 
 ### Intentionally **not** set for this demo
 
@@ -98,14 +117,23 @@ After the deploy goes green:
      'https://<your-deploy>/api/dev/seed?reset=1'
    ```
 
-## What the dev/quick-login panel does in production
+## What the demo quick-login panel does in production
 
-The yellow "开发环境一键登录" panel in
+The yellow "演示账号一键登录" panel in
 [`components/features/auth/dev-quick-login.tsx`](../components/features/auth/dev-quick-login.tsx)
-checks `NODE_ENV` client-side and renders **nothing** in production. Casual
-visitors won't see one-click logins. If you want one-click logins for demo
-visitors, swap that gate to a `NEXT_PUBLIC_DEMO_MODE` env var — out of scope
-for this deploy.
+defaults to hidden on production builds. To turn it on for visitors, follow
+the *Optional: enable one-click demo logins* section above (set both
+`DEMO_PUBLIC=1` and `NEXT_PUBLIC_DEMO_PUBLIC=1`, then redeploy).
+
+Even when the panel stays hidden, real-account login still works at
+`/login` (or `/admin/login`) using the seeded credentials below; first
+visit auto-seeds them on demand because of `AUTO_SEED=1`:
+
+| Role  | Identifier                       | Password    |
+| ----- | -------------------------------- | ----------- |
+| Admin | `admin@seedao.local`             | `admin123`  |
+| User  | `alice@seedao.local`             | `hello123`  |
+| User  | `+8613800000002` (Bob, pending)  | `hello123`  |
 
 ## Known caveats
 
