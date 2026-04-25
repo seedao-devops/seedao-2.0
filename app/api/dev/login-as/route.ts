@@ -1,9 +1,12 @@
 /**
- * Dev-only one-click login.
+ * Demo one-click login.
  *   GET  /api/dev/login-as            -> list demo accounts (auto-seeds if empty)
  *   POST /api/dev/login-as { key }    -> set the session cookie for that demo user
  *
- * Disabled in production.
+ * Access:
+ *   - Dev (NODE_ENV !== "production"): always allowed.
+ *   - Production: requires DEMO_RESET_TOKEN via `?token=...` (GET) or
+ *     `Authorization: Bearer ...` / `{ token }` body field (POST).
  */
 import { NextResponse } from "next/server";
 import {
@@ -13,12 +16,27 @@ import {
 } from "@/lib/features/_shared/seed";
 import { setSessionCookie } from "@/lib/features/auth/session";
 
-function isDevAllowed() {
-  return process.env.NODE_ENV !== "production";
+export const runtime = "nodejs";
+
+function isAuthorized(req: Request, bodyToken?: string): boolean {
+  if (process.env.NODE_ENV !== "production") return true;
+  const expected = process.env.DEMO_RESET_TOKEN;
+  if (!expected) return false;
+  const url = new URL(req.url);
+  const fromQuery = url.searchParams.get("token");
+  const auth = req.headers.get("authorization") ?? "";
+  const fromHeader = auth.toLowerCase().startsWith("bearer ")
+    ? auth.slice(7).trim()
+    : null;
+  return (
+    fromQuery === expected ||
+    fromHeader === expected ||
+    bodyToken === expected
+  );
 }
 
-export async function GET() {
-  if (!isDevAllowed()) {
+export async function GET(req: Request) {
+  if (!isAuthorized(req)) {
     return NextResponse.json({ error: "DISABLED" }, { status: 403 });
   }
   const seeded = await seedIfEmpty();
@@ -33,10 +51,13 @@ export async function GET() {
 }
 
 export async function POST(req: Request) {
-  if (!isDevAllowed()) {
+  const body = (await req.json().catch(() => ({}))) as {
+    key?: string;
+    token?: string;
+  };
+  if (!isAuthorized(req, body.token)) {
     return NextResponse.json({ error: "DISABLED" }, { status: 403 });
   }
-  const body = (await req.json().catch(() => ({}))) as { key?: string };
   const key = body.key as DemoAccountKey | undefined;
   if (!key || !(key in DEMO_ACCOUNTS)) {
     return NextResponse.json(

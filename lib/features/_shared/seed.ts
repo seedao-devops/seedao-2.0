@@ -13,7 +13,7 @@
 
 import bcrypt from "bcryptjs";
 import { nanoid } from "nanoid";
-import { getTable, saveTable, type Schema } from "./fake-db";
+import { getTableRaw, saveTable, type Schema } from "./fake-db";
 
 export const DEMO_ACCOUNTS = {
   admin: {
@@ -42,7 +42,8 @@ export const DEMO_ACCOUNTS = {
 export type DemoAccountKey = keyof typeof DEMO_ACCOUNTS;
 
 export async function isSeeded(): Promise<boolean> {
-  const users = await getTable("users");
+  // Use the raw read so this check itself never triggers auto-seed.
+  const users = await getTableRaw("users");
   return users.some((u) => u.id === DEMO_ACCOUNTS.admin.id);
 }
 

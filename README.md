@@ -36,7 +36,7 @@ You can also manually reset all demo data:
 curl 'http://localhost:3000/api/dev/seed?reset=1'
 ```
 
-Both `/api/dev/seed` and `/api/dev/login-as` return 403 in production builds.
+In production builds both `/api/dev/seed` and `/api/dev/login-as` are gated behind a `DEMO_RESET_TOKEN` env var (set in Vercel) — see [`docs/deploy.md`](./docs/deploy.md). Without the token they return 403.
 
 ## Project structure
 
@@ -76,6 +76,8 @@ npm run lint     # eslint
 - [`docs/ui.md`](./docs/ui.md) — page-by-page UI component checklist
 - [`docs/api.md`](./docs/api.md) — API endpoint reference
 - [`docs/testing.md`](./docs/testing.md) — test accounts and manual test scenarios
+- [`docs/schema.md`](./docs/schema.md) — data model + suggested SQL schema (handoff for the backend dev)
+- [`docs/deploy.md`](./docs/deploy.md) — deploy this prototype to Vercel with writable demo data
 
 ## Customizing the design system
 

@@ -160,9 +160,10 @@
 
 任何一次发布都需要的横切准备(单独追踪,不计入单条旅程):
 
-- [ ] 用真实数据库替换 [`lib/features/_shared/fake-db.ts`](../lib/features/_shared/fake-db.ts) 中的文件型 fake DB。
-- [ ] 确认 `NODE_ENV=production` 时 `/api/dev/seed` 与 `/api/dev/login-as` 返回 403。
+- [ ] 用真实数据库替换 [`lib/features/_shared/fake-db.ts`](../lib/features/_shared/fake-db.ts) 中的原型存储(本地为文件、Vercel demo 为 Upstash Redis)。参考 [`docs/schema.md`](./schema.md)。
+- [ ] 确认生产构建下 `/api/dev/seed` 与 `/api/dev/login-as` 由 `DEMO_RESET_TOKEN` 校验把守(无 token 返回 403)。
 - [ ] 确认生产构建下 `/login` 与 `/admin/login` 不再渲染黄色的「开发环境一键登录」面板。
+- [ ] 设置 `AUTH_SECRET`(Vercel demo 故意未设,见 [`docs/deploy.md`](./deploy.md))。
 
 ---
 

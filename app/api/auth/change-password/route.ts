@@ -7,6 +7,9 @@ import { updatePassword } from "@/lib/features/auth/repo";
 // an SMS / email verification flow. Replace with a real channel later.
 const MOCK_CODE = "000000";
 
+// bcrypt is a native-ish dependency; pin to nodejs to avoid Edge promotion.
+export const runtime = "nodejs";
+
 export async function POST(request: Request) {
   const session = await getSession();
   if (!session) return NextResponse.json({ error: "UNAUTHORIZED" }, { status: 401 });

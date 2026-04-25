@@ -3,6 +3,9 @@ import { loginSchema } from "@/lib/features/auth/schema";
 import { findUserByIdentifier, verifyPassword } from "@/lib/features/auth/repo";
 import { setSessionCookie } from "@/lib/features/auth/session";
 
+// bcrypt is a native-ish dependency; pin to nodejs to avoid Edge promotion.
+export const runtime = "nodejs";
+
 export async function POST(request: Request) {
   const body = await request.json().catch(() => null);
   const parsed = loginSchema.safeParse(body);

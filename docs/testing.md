@@ -1,6 +1,6 @@
 # Testing & Demo Accounts
 
-This project ships with three demo accounts and a one-click login UI for fast manual testing. All test machinery is dev-only — every endpoint and UI element is gated by `NODE_ENV !== "production"`.
+This project ships with three demo accounts and a one-click login UI for fast manual testing. The yellow quick-login panel is dev-only (gated by `NODE_ENV !== "production"`); the underlying `/api/dev/seed` and `/api/dev/login-as` endpoints are open in dev and gated behind a `DEMO_RESET_TOKEN` env var in production builds. See [`docs/deploy.md`](./deploy.md).
 
 ## Demo accounts
 
@@ -98,9 +98,10 @@ This wipes and reseeds all five tables. Useful when:
 
 ## Production safety check
 
-Before shipping:
-- [ ] Confirm `NODE_ENV=production` returns 403 from `/api/dev/seed` and `/api/dev/login-as` (test by running `npm run build && npm start` locally and curling those routes).
+Before shipping to a real (non-demo) audience:
+- [ ] Confirm `/api/dev/seed` and `/api/dev/login-as` are token-gated in production (either set `DEMO_RESET_TOKEN` to a strong secret you control, or remove the routes entirely). Test with `npm run build && npm start` and curling without the token — should return 403.
 - [ ] Confirm the yellow "开发环境一键登录" panel does NOT render on `/login` or `/admin/login` in a production build.
 - [ ] Replace the `MOCK_CODE = "000000"` in `app/api/auth/change-password/route.ts` with a real SMS / email verification channel.
-- [ ] Replace the file-based fake DB in `lib/features/_shared/fake-db.ts` with a real database.
+- [ ] Replace the prototype storage in `lib/features/_shared/fake-db.ts` (file-based locally, Upstash Redis on the Vercel demo) with a real database — see [`docs/schema.md`](./schema.md).
+- [ ] Set `AUTH_SECRET` to a random 32+ byte secret (the Vercel demo intentionally leaves it at the insecure literal — see [`docs/deploy.md`](./deploy.md)).
 - [ ] Replace the "标记已付款" self-service button (`POST /api/applications/me/mark-paid`) with a real payment-gateway webhook.

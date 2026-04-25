@@ -11,6 +11,9 @@ const bodySchema = z.object({
   application: applicationFormSchema,
 });
 
+// bcrypt is a native-ish dependency; pin to nodejs to avoid Edge promotion.
+export const runtime = "nodejs";
+
 export async function POST(request: Request) {
   const json = await request.json().catch(() => null);
   const parsed = bodySchema.safeParse(json);

@@ -159,7 +159,11 @@ All admin routes are gated by `proxy.ts` — unauthenticated or non-admin reques
 
 ## Dev-only — `app/api/dev/`
 
-Both endpoints return **403 DISABLED** when `NODE_ENV === "production"`.
+In dev (`NODE_ENV !== "production"`) both endpoints are open. In a production
+build they require a `DEMO_RESET_TOKEN` env var and return **403 DISABLED**
+unless the request supplies a matching token via `?token=...` or
+`Authorization: Bearer ...` (POST also accepts `{ token }` in the JSON body).
+See [`docs/deploy.md`](./deploy.md).
 
 ### `GET /api/dev/seed?reset=1`
 - Without `reset=1`: returns `{ seeded: boolean, accounts }`

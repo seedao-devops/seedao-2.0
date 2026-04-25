@@ -1,16 +1,22 @@
 /**
- * In-process JSON-file fake database.
+ * Tiny table-shaped data store with two interchangeable backends:
  *
- * Tables are typed via the `Schema` map below. Each table is read on demand
- * and written atomically. We use a per-file mutex to avoid concurrent-write
- * corruption during dev with multiple route handler invocations.
+ *   1. JSON files under `.data/` (default — used in local dev).
+ *   2. Upstash Redis — one key per table, value = the whole array as JSON.
+ *      Activated automatically when `UPSTASH_REDIS_REST_URL` is set
+ *      (Vercel Marketplace integration injects this and the matching token).
  *
- * Production note: this is intentionally minimal; swap in a real DB by
- * implementing the same `getTable / saveTable` interface in feature repos.
+ * The public API (`getTable`, `saveTable`, `updateTable`) is identical for
+ * both backends so feature repos don't care which one is live.
+ *
+ * Production note: this is intentionally minimal. To ship a real DB, swap in
+ * implementations of the same three functions in feature repos. See
+ * `docs/schema.md` for the proposed SQL schema.
  */
 
 import { promises as fs } from "node:fs";
 import path from "node:path";
+import { Redis } from "@upstash/redis";
 import type {
   PaymentStatus,
   ReviewStatus,
@@ -175,13 +181,98 @@ export interface Schema {
   coLearningEvents: CoLearningEvent[];
 }
 
-const DATA_DIR = path.join(process.cwd(), ".data");
+// ---------- Auto-seed wiring (lazy import to break import cycle) ----------
+//
+// `getTable` triggers a one-shot demo seed when AUTO_SEED=1 and the table is
+// empty. The seed module itself uses `getTableRaw` to read so it never
+// re-enters this auto-seed path.
+const AUTO_SEED_TABLES = new Set<keyof Schema>([
+  "users",
+  "bases",
+  "coLearningEvents",
+]);
 
+let ensureSeededFn: (() => Promise<unknown>) | null = null;
+async function maybeAutoSeed(table: keyof Schema): Promise<void> {
+  if (process.env.AUTO_SEED !== "1") return;
+  if (!AUTO_SEED_TABLES.has(table)) return;
+  if (!ensureSeededFn) {
+    const mod = await import("./auto-seed");
+    ensureSeededFn = mod.ensureSeeded;
+  }
+  await ensureSeededFn();
+}
+
+// ---------- Backend selection ----------
+
+const USE_REDIS = !!process.env.UPSTASH_REDIS_REST_URL;
+
+const REDIS_KEY_PREFIX = "seedao:table:";
+const redisKey = (table: keyof Schema) => `${REDIS_KEY_PREFIX}${table}`;
+
+let _redis: Redis | null = null;
+function redis(): Redis {
+  if (!_redis) {
+    _redis = Redis.fromEnv();
+  }
+  return _redis;
+}
+
+// ---------- File backend ----------
+
+const DATA_DIR = path.join(process.cwd(), ".data");
 const fileFor = (table: keyof Schema) => path.join(DATA_DIR, `${table}.json`);
 
 async function ensureDir() {
   await fs.mkdir(DATA_DIR, { recursive: true });
 }
+
+async function fileGet<K extends keyof Schema>(table: K): Promise<Schema[K]> {
+  await ensureDir();
+  try {
+    const raw = await fs.readFile(fileFor(table), "utf8");
+    return JSON.parse(raw) as Schema[K];
+  } catch (err: unknown) {
+    if ((err as NodeJS.ErrnoException).code === "ENOENT") {
+      return [] as unknown as Schema[K];
+    }
+    throw err;
+  }
+}
+
+async function fileSet<K extends keyof Schema>(
+  table: K,
+  data: Schema[K],
+): Promise<void> {
+  await ensureDir();
+  const tmp = `${fileFor(table)}.tmp`;
+  await fs.writeFile(tmp, JSON.stringify(data, null, 2), "utf8");
+  await fs.rename(tmp, fileFor(table));
+}
+
+// ---------- Redis backend ----------
+//
+// Each table is stored as one JSON-serialised array under
+// `seedao:table:<name>`. Upstash auto-(de)serialises objects, so reads return
+// the parsed array and writes accept the array directly.
+//
+// `withLock` only serialises writes from a single serverless instance — two
+// instances racing on the same table can still drop a write (last-writer-wins).
+// Acceptable for low-traffic demo; harden with WATCH/MULTI if needed.
+
+async function redisGet<K extends keyof Schema>(table: K): Promise<Schema[K]> {
+  const value = await redis().get<Schema[K]>(redisKey(table));
+  return value ?? ([] as unknown as Schema[K]);
+}
+
+async function redisSet<K extends keyof Schema>(
+  table: K,
+  data: Schema[K],
+): Promise<void> {
+  await redis().set(redisKey(table), data);
+}
+
+// ---------- Per-process write mutex ----------
 
 const locks = new Map<string, Promise<unknown>>();
 async function withLock<T>(key: string, fn: () => Promise<T>): Promise<T> {
@@ -196,29 +287,30 @@ async function withLock<T>(key: string, fn: () => Promise<T>): Promise<T> {
   return next as Promise<T>;
 }
 
-export async function getTable<K extends keyof Schema>(table: K): Promise<Schema[K]> {
-  await ensureDir();
-  try {
-    const raw = await fs.readFile(fileFor(table), "utf8");
-    return JSON.parse(raw) as Schema[K];
-  } catch (err: unknown) {
-    if ((err as NodeJS.ErrnoException).code === "ENOENT") {
-      return [] as unknown as Schema[K];
-    }
-    throw err;
-  }
+// ---------- Public API ----------
+
+/**
+ * Read a table without triggering auto-seed. Used by the seed module itself
+ * to check whether the DB is already populated.
+ */
+export async function getTableRaw<K extends keyof Schema>(
+  table: K,
+): Promise<Schema[K]> {
+  return USE_REDIS ? redisGet(table) : fileGet(table);
+}
+
+export async function getTable<K extends keyof Schema>(
+  table: K,
+): Promise<Schema[K]> {
+  await maybeAutoSeed(table);
+  return getTableRaw(table);
 }
 
 export async function saveTable<K extends keyof Schema>(
   table: K,
   data: Schema[K],
 ): Promise<void> {
-  await ensureDir();
-  await withLock(table, async () => {
-    const tmp = `${fileFor(table)}.tmp`;
-    await fs.writeFile(tmp, JSON.stringify(data, null, 2), "utf8");
-    await fs.rename(tmp, fileFor(table));
-  });
+  await withLock(table, () => (USE_REDIS ? redisSet(table, data) : fileSet(table, data)));
 }
 
 export async function updateTable<K extends keyof Schema>(
@@ -226,11 +318,13 @@ export async function updateTable<K extends keyof Schema>(
   mutate: (rows: Schema[K]) => Schema[K] | Promise<Schema[K]>,
 ): Promise<Schema[K]> {
   return withLock(table, async () => {
-    const rows = await getTable(table);
+    const rows = USE_REDIS ? await redisGet(table) : await fileGet(table);
     const next = await mutate(rows);
-    const tmp = `${fileFor(table)}.tmp`;
-    await fs.writeFile(tmp, JSON.stringify(next, null, 2), "utf8");
-    await fs.rename(tmp, fileFor(table));
+    if (USE_REDIS) {
+      await redisSet(table, next);
+    } else {
+      await fileSet(table, next);
+    }
     return next;
   });
 }
