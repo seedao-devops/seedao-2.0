@@ -3,8 +3,12 @@
  *
  *   1. JSON files under `.data/` (default — used in local dev).
  *   2. Upstash Redis — one key per table, value = the whole array as JSON.
- *      Activated automatically when `UPSTASH_REDIS_REST_URL` is set
- *      (Vercel Marketplace integration injects this and the matching token).
+ *      Activated automatically when either env-var pair is present:
+ *        - UPSTASH_REDIS_REST_URL  + UPSTASH_REDIS_REST_TOKEN
+ *          (Vercel Marketplace "Upstash" tile)
+ *        - KV_REST_API_URL         + KV_REST_API_TOKEN
+ *          (Vercel Marketplace "KV / Marketplace database" tile — same
+ *          Upstash backend, different env-var naming)
  *
  * The public API (`getTable`, `saveTable`, `updateTable`) is identical for
  * both backends so feature repos don't care which one is live.
@@ -205,7 +209,24 @@ async function maybeAutoSeed(table: keyof Schema): Promise<void> {
 
 // ---------- Backend selection ----------
 
-const USE_REDIS = !!process.env.UPSTASH_REDIS_REST_URL;
+// Accept either naming scheme that Vercel's marketplace injects. Both pairs
+// point at the same Upstash REST API; pick whichever is present.
+const REDIS_REST_URL =
+  process.env.UPSTASH_REDIS_REST_URL ?? process.env.KV_REST_API_URL;
+const REDIS_REST_TOKEN =
+  process.env.UPSTASH_REDIS_REST_TOKEN ?? process.env.KV_REST_API_TOKEN;
+
+const USE_REDIS = !!REDIS_REST_URL && !!REDIS_REST_TOKEN;
+
+// Loud canary so a misconfigured production deploy shows up in Vercel logs
+// instead of silently falling back to the (read-only) file backend.
+if (!USE_REDIS && process.env.NODE_ENV === "production") {
+  console.warn(
+    "[fake-db] No Upstash REST env vars found " +
+      "(UPSTASH_REDIS_REST_URL/_TOKEN or KV_REST_API_URL/_TOKEN). " +
+      "Falling back to file backend, which will fail on a read-only filesystem.",
+  );
+}
 
 const REDIS_KEY_PREFIX = "seedao:table:";
 const redisKey = (table: keyof Schema) => `${REDIS_KEY_PREFIX}${table}`;
@@ -213,7 +234,7 @@ const redisKey = (table: keyof Schema) => `${REDIS_KEY_PREFIX}${table}`;
 let _redis: Redis | null = null;
 function redis(): Redis {
   if (!_redis) {
-    _redis = Redis.fromEnv();
+    _redis = new Redis({ url: REDIS_REST_URL!, token: REDIS_REST_TOKEN! });
   }
   return _redis;
 }

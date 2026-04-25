@@ -25,12 +25,31 @@ identical for both backends, so feature repos don't care which one is live.
 
 Set these in **Vercel → Project → Settings → Environment Variables**.
 
-| Variable                    | Required for | Source                                        | Notes                                                                 |
-| --------------------------- | ------------ | --------------------------------------------- | --------------------------------------------------------------------- |
-| `UPSTASH_REDIS_REST_URL`    | Production   | Vercel Marketplace → Upstash Redis (auto)     | Presence of this var flips storage to Redis.                          |
-| `UPSTASH_REDIS_REST_TOKEN`  | Production   | Vercel Marketplace → Upstash Redis (auto)     | Server-side write token, never exposed to the client.                 |
-| `DEMO_RESET_TOKEN`          | Production   | You generate (e.g. `openssl rand -hex 32`)    | Required to call `/api/dev/seed` and `/api/dev/login-as` in prod.     |
-| `AUTO_SEED`                 | Production   | Set to `1`                                    | Triggers a one-shot seed on the first read of `users/bases/coLearningEvents`. |
+| Variable                                                  | Required for | Source                                                       | Notes                                                                 |
+| --------------------------------------------------------- | ------------ | ------------------------------------------------------------ | --------------------------------------------------------------------- |
+| `UPSTASH_REDIS_REST_URL` **or** `KV_REST_API_URL`         | Production   | Vercel Marketplace database integration (auto)               | Presence of either flips storage to Redis. See note on naming below.  |
+| `UPSTASH_REDIS_REST_TOKEN` **or** `KV_REST_API_TOKEN`     | Production   | Vercel Marketplace database integration (auto)               | Server-side write token, never exposed to the client.                 |
+| `DEMO_RESET_TOKEN`                                        | Production   | You generate (e.g. `openssl rand -hex 32`)                   | Required to call `/api/dev/seed` and `/api/dev/login-as` in prod.     |
+| `AUTO_SEED`                                               | Production   | Set to `1`                                                   | Triggers a one-shot seed on the first read of `users/bases/coLearningEvents`. |
+
+> **On the two naming schemes:** Vercel's Storage marketplace ships the same
+> Upstash Redis backend under two tiles. The "Upstash" tile injects
+> `UPSTASH_REDIS_REST_URL` / `UPSTASH_REDIS_REST_TOKEN`. The "Marketplace
+> database" / "Vercel KV" tile injects `KV_REST_API_URL` / `KV_REST_API_TOKEN`.
+> The dispatcher in [`lib/features/_shared/fake-db.ts`](../lib/features/_shared/fake-db.ts)
+> accepts either pair (Upstash names take precedence if both are present), so
+> you don't need to rename anything regardless of which tile you picked.
+
+### Vars Vercel may also inject — **unused** by this app
+
+If your integration also dropped these, you can ignore them; nothing in this
+codebase reads them:
+
+- `KV_URL`, `REDIS_URL` — `rediss://` TCP connection strings. The
+  `@upstash/redis` client is HTTP-only and doesn't use them.
+- `KV_REST_API_READ_ONLY_TOKEN` — read-only token. The app does writes
+  (seeds + journey edits + admin CRUD), so the full read/write token is
+  required.
 
 ### Intentionally **not** set for this demo
 
@@ -42,14 +61,21 @@ Set these in **Vercel → Project → Settings → Environment Variables**.
 
 1. Push this repo and import it in Vercel (`Add New… → Project`). Framework
    auto-detects as Next.js. Build command and output dir: leave as defaults.
-2. Open the project's **Storage** tab → **Create Database** → pick **Upstash
-   Redis** from the Marketplace. Choose a region close to your Vercel region.
-   This auto-injects `UPSTASH_REDIS_REST_URL` and `UPSTASH_REDIS_REST_TOKEN`
-   into all environments.
+2. Open the project's **Storage** tab → **Create Database** → pick any
+   **Upstash Redis**-backed tile from the Marketplace (either "Upstash" or
+   "Marketplace database / KV" works — the dispatcher accepts both naming
+   schemes). Choose a region close to your Vercel region.
 3. Open **Settings → Environment Variables** and add:
    - `DEMO_RESET_TOKEN` → some random string (keep it; you'll use it below).
    - `AUTO_SEED` → `1`.
 4. Trigger a deploy (`Deployments → Redeploy`) so the new env vars take effect.
+
+> **Diagnostic tip:** if `/bases` returns 500 on the first visit, check the
+> Vercel Function logs for the line
+> `[fake-db] No Upstash REST env vars found ...`. If you see it, neither
+> env-var pair was visible to the running function — fix by adding the
+> Upstash integration to the **Production** environment specifically and
+> redeploying.
 
 ## Verify the deploy
 
