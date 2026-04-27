@@ -7,20 +7,24 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Skeleton } from "@/components/ui/skeleton";
 import { TagPicker } from "@/components/ui/tag-picker";
 import { BASE_TAGS, SKILL_TAGS } from "@/lib/features/_shared/enums";
 import type { Base } from "@/lib/features/_shared/fake-db";
+import { useBases } from "@/lib/features/bases/hooks";
 import { BasesMap } from "./bases-map";
 
-export function BasesExplorer({ initialBases }: { initialBases: Base[] }) {
+export function BasesExplorer() {
+  const { bases, isLoading } = useBases();
   const [query, setQuery] = useState("");
   const [tags, setTags] = useState<string[]>([]);
   const [skills, setSkills] = useState<string[]>([]);
   const [showFilters, setShowFilters] = useState(false);
 
   const filtered = useMemo(() => {
+    if (!bases) return [];
     const q = query.trim().toLowerCase();
-    return initialBases.filter((b) => {
+    return bases.filter((b) => {
       if (q) {
         const hay = [b.name, b.description, b.city, b.province].join(" ").toLowerCase();
         if (!hay.includes(q)) return false;
@@ -38,7 +42,7 @@ export function BasesExplorer({ initialBases }: { initialBases: Base[] }) {
       }
       return true;
     });
-  }, [initialBases, query, tags, skills]);
+  }, [bases, query, tags, skills]);
 
   return (
     <div className="space-y-4">
@@ -97,8 +101,27 @@ export function BasesExplorer({ initialBases }: { initialBases: Base[] }) {
 
       <BasesMap bases={filtered} />
 
+      {isLoading && !bases ? (
+        <ul className="space-y-3">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <li key={i}>
+              <Card className="p-4">
+                <div className="flex gap-3">
+                  <Skeleton className="size-12 rounded-full shrink-0" />
+                  <div className="flex-1 space-y-2">
+                    <Skeleton className="h-4 w-32" />
+                    <Skeleton className="h-3 w-full" />
+                    <Skeleton className="h-3 w-2/3" />
+                  </div>
+                </div>
+              </Card>
+            </li>
+          ))}
+        </ul>
+      ) : null}
+
       <ul className="space-y-3">
-        {filtered.length === 0 ? (
+        {!isLoading && filtered.length === 0 ? (
           <Card className="p-8 text-center text-sm text-muted-foreground">
             没有符合条件的基地
           </Card>

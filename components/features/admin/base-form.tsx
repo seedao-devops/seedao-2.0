@@ -29,6 +29,7 @@ import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
 import { TagPicker } from "@/components/ui/tag-picker";
+import { ApiError, apiDelete, apiPost, apiPut } from "@/lib/api-client";
 
 const EMPTY: BaseUpsertInput = {
   emoji: "🏡",
@@ -87,20 +88,19 @@ export function BaseForm({
   async function onSubmit(values: BaseUpsertInput) {
     setBusy(true);
     try {
-      const url = mode === "create" ? "/api/admin/bases" : `/api/admin/bases/${baseId}`;
-      const method = mode === "create" ? "POST" : "PUT";
-      const res = await fetch(url, {
-        method,
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify(values),
-      });
-      if (!res.ok) {
-        toast.error("保存失败");
-        return;
+      try {
+        if (mode === "create") {
+          await apiPost("/api/admin/bases", values);
+        } else {
+          await apiPut(`/api/admin/bases/${baseId}`, values);
+        }
+        toast.success("已保存");
+        router.push("/admin/bases");
+        router.refresh();
+      } catch (err) {
+        if (err instanceof ApiError) toast.error("保存失败");
+        else throw err;
       }
-      toast.success("已保存");
-      router.push("/admin/bases");
-      router.refresh();
     } finally {
       setBusy(false);
     }
@@ -109,14 +109,15 @@ export function BaseForm({
   async function remove() {
     if (!baseId) return;
     if (!confirm("确定删除该基地？")) return;
-    const res = await fetch(`/api/admin/bases/${baseId}`, { method: "DELETE" });
-    if (!res.ok) {
-      toast.error("删除失败");
-      return;
+    try {
+      await apiDelete(`/api/admin/bases/${baseId}`);
+      toast.success("已删除");
+      router.push("/admin/bases");
+      router.refresh();
+    } catch (err) {
+      if (err instanceof ApiError) toast.error("删除失败");
+      else throw err;
     }
-    toast.success("已删除");
-    router.push("/admin/bases");
-    router.refresh();
   }
 
   return (

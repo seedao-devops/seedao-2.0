@@ -1,6 +1,8 @@
 import type { Metadata, Viewport } from "next";
 import { Geist_Mono } from "next/font/google";
 import { Toaster } from "@/components/ui/sonner";
+import { UnauthorizedListener } from "@/components/layout/unauthorized-listener";
+import { SWRProvider } from "./swr-provider";
 import "./globals.css";
 
 /**
@@ -65,8 +67,9 @@ export default function RootLayout({
         className="min-h-full flex flex-col bg-background text-foreground"
         suppressHydrationWarning
       >
-        {children}
+        <SWRProvider>{children}</SWRProvider>
         <Toaster />
+        <UnauthorizedListener />
       </body>
     </html>
   );

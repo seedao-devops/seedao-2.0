@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { ApiError, apiPost } from "@/lib/api-client";
 
 type Account = { key: string; label: string; role: "admin" | "user" };
 
@@ -46,20 +47,20 @@ export function DevQuickLogin({
   async function loginAs(account: Account) {
     setBusy(account.key);
     try {
-      const res = await fetch("/api/dev/login-as", {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify({ key: account.key }),
-      });
-      if (!res.ok) {
-        toast.error("一键登录失败");
-        return;
+      try {
+        await apiPost("/api/dev/login-as", { key: account.key });
+        toast.success(`已登录：${account.label}`);
+        const target =
+          redirect ?? (account.role === "admin" ? "/admin" : "/journey");
+        router.push(target);
+        router.refresh();
+      } catch (err) {
+        if (err instanceof ApiError) {
+          toast.error("一键登录失败");
+        } else {
+          throw err;
+        }
       }
-      toast.success(`已登录：${account.label}`);
-      const target =
-        redirect ?? (account.role === "admin" ? "/admin" : "/journey");
-      router.push(target);
-      router.refresh();
     } finally {
       setBusy(null);
     }

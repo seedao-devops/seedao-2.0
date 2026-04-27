@@ -6,6 +6,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { changePasswordSchema, type ChangePasswordInput } from "@/lib/features/auth/schema";
+import { ApiError, apiPost } from "@/lib/api-client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
@@ -31,26 +32,25 @@ export function SecurityPanel({ contact }: { contact: { phone?: string; email?: 
   async function onSubmit(values: ChangePasswordInput) {
     setSubmitting(true);
     try {
-      const res = await fetch("/api/auth/change-password", {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify(values),
-      });
-      if (!res.ok) {
-        const data = await res.json().catch(() => ({}));
-        toast.error(data.error === "INVALID_CODE" ? "验证码错误" : "更新失败");
-        return;
+      try {
+        await apiPost("/api/auth/change-password", values);
+        toast.success("密码已更新");
+        form.reset();
+        setCodeSent(false);
+      } catch (err) {
+        if (err instanceof ApiError) {
+          toast.error(err.code === "INVALID_CODE" ? "验证码错误" : "更新失败");
+        } else {
+          throw err;
+        }
       }
-      toast.success("密码已更新");
-      form.reset();
-      setCodeSent(false);
     } finally {
       setSubmitting(false);
     }
   }
 
   async function logout() {
-    await fetch("/api/auth/logout", { method: "POST" });
+    await apiPost("/api/auth/logout").catch(() => {});
     router.push("/");
     router.refresh();
   }

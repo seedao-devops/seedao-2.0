@@ -7,6 +7,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
 import { loginSchema, type LoginInput } from "@/lib/features/auth/schema";
+import { ApiError, apiPost } from "@/lib/api-client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -39,22 +40,24 @@ export function LoginForm() {
         tab === "phone"
           ? { phone: values.phone, password: values.password }
           : { email: values.email, password: values.password };
-      const res = await fetch("/api/auth/login", {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify(body),
-      });
-      const data = await res.json();
-      if (!res.ok) {
-        toast.error("登录失败，请检查账号与密码");
-        return;
+      try {
+        const data = await apiPost<{ ok: true; role: "admin" | "user" }>(
+          "/api/auth/login",
+          body,
+        );
+        if (data.role === "admin") {
+          router.push("/admin/applications");
+        } else {
+          router.push(redirect);
+        }
+        router.refresh();
+      } catch (err) {
+        if (err instanceof ApiError) {
+          toast.error("登录失败，请检查账号与密码");
+        } else {
+          throw err;
+        }
       }
-      if (data.role === "admin") {
-        router.push("/admin/applications");
-      } else {
-        router.push(redirect);
-      }
-      router.refresh();
     } finally {
       setSubmitting(false);
     }

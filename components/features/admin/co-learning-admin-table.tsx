@@ -30,6 +30,7 @@ import {
   type CoLearningUpsertInput,
 } from "@/lib/features/co-learning/schema";
 import type { CoLearningEvent } from "@/lib/features/_shared/fake-db";
+import { ApiError, apiDelete, apiPost, apiPut } from "@/lib/api-client";
 
 type BaseRef = { id: string; name: string; emoji: string };
 
@@ -70,13 +71,14 @@ export function CoLearningAdminTable({
 
   async function remove(id: string) {
     if (!confirm("确定删除该活动？")) return;
-    const res = await fetch(`/api/admin/co-learning/${id}`, { method: "DELETE" });
-    if (!res.ok) {
-      toast.error("删除失败");
-      return;
+    try {
+      await apiDelete(`/api/admin/co-learning/${id}`);
+      toast.success("已删除");
+      router.refresh();
+    } catch (err) {
+      if (err instanceof ApiError) toast.error("删除失败");
+      else throw err;
     }
-    toast.success("已删除");
-    router.refresh();
   }
 
   return (
@@ -196,19 +198,18 @@ function EventDialogContent({
   async function onSubmit(values: CoLearningUpsertInput) {
     setBusy(true);
     try {
-      const url = event ? `/api/admin/co-learning/${event.id}` : "/api/admin/co-learning";
-      const method = event ? "PUT" : "POST";
-      const res = await fetch(url, {
-        method,
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify(values),
-      });
-      if (!res.ok) {
-        toast.error("保存失败");
-        return;
+      try {
+        if (event) {
+          await apiPut(`/api/admin/co-learning/${event.id}`, values);
+        } else {
+          await apiPost("/api/admin/co-learning", values);
+        }
+        toast.success("已保存");
+        onSaved();
+      } catch (err) {
+        if (err instanceof ApiError) toast.error("保存失败");
+        else throw err;
       }
-      toast.success("已保存");
-      onSaved();
     } finally {
       setBusy(false);
     }

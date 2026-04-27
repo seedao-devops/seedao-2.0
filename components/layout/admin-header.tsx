@@ -4,11 +4,12 @@ import { useRouter } from "next/navigation";
 import { LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
+import { apiPost } from "@/lib/api-client";
 
 export function AdminHeader({ email }: { email: string }) {
   const router = useRouter();
   async function logout() {
-    await fetch("/api/auth/logout", { method: "POST" });
+    await apiPost("/api/auth/logout").catch(() => {});
     toast.success("已退出登录");
     router.push("/admin/login");
     router.refresh();

@@ -18,6 +18,7 @@ import {
 } from "@/components/ui/form";
 import { Card } from "@/components/ui/card";
 import { DevQuickLogin } from "@/components/features/auth/dev-quick-login";
+import { ApiError, apiPost } from "@/lib/api-client";
 
 const adminLoginSchema = z.object({
   email: z.string().email("请输入有效邮箱"),
@@ -36,24 +37,26 @@ export default function AdminLoginPage() {
   async function onSubmit(values: FormData) {
     setSubmitting(true);
     try {
-      const res = await fetch("/api/auth/login", {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify({ email: values.email, password: values.password }),
-      });
-      const data = await res.json();
-      if (!res.ok) {
-        toast.error("登录失败，请检查邮箱与密码");
-        return;
+      try {
+        const data = await apiPost<{ ok: true; role: "admin" | "user" }>(
+          "/api/auth/login",
+          { email: values.email, password: values.password },
+        );
+        if (data.role !== "admin") {
+          toast.error("此账号无管理员权限");
+          await apiPost("/api/auth/logout").catch(() => {});
+          return;
+        }
+        toast.success("登录成功");
+        router.push("/admin");
+        router.refresh();
+      } catch (err) {
+        if (err instanceof ApiError) {
+          toast.error("登录失败，请检查邮箱与密码");
+        } else {
+          throw err;
+        }
       }
-      if (data.role !== "admin") {
-        toast.error("此账号无管理员权限");
-        await fetch("/api/auth/logout", { method: "POST" });
-        return;
-      }
-      toast.success("登录成功");
-      router.push("/admin");
-      router.refresh();
     } finally {
       setSubmitting(false);
     }

@@ -5,29 +5,30 @@ import { Search, X } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Skeleton } from "@/components/ui/skeleton";
 import { TagPicker } from "@/components/ui/tag-picker";
 import {
   LEVEL_TAGS,
   LEVEL_TAG_LABELS,
   SKILL_TAGS,
 } from "@/lib/features/_shared/enums";
-import type { Base, CoLearningEvent } from "@/lib/features/_shared/fake-db";
+import type { CoLearningEvent } from "@/lib/features/_shared/fake-db";
+import { useBases } from "@/lib/features/bases/hooks";
+import { useCoLearningEvents } from "@/lib/features/co-learning/hooks";
 
-export function CoLearningExplorer({
-  initialEvents,
-  bases,
-}: {
-  initialEvents: CoLearningEvent[];
-  bases: Base[];
-}) {
+export function CoLearningExplorer() {
+  const { events, isLoading: eventsLoading } = useCoLearningEvents();
+  const { bases } = useBases();
   const [query, setQuery] = useState("");
   const [skills, setSkills] = useState<string[]>([]);
   const [levels, setLevels] = useState<string[]>([]);
-  const baseName = (id: string) => bases.find((b) => b.id === id);
+  const baseName = (id: string) => bases?.find((b) => b.id === id);
+  const isLoading = eventsLoading && !events;
 
   const filtered = useMemo(() => {
+    if (!events) return [];
     const q = query.trim().toLowerCase();
-    return initialEvents.filter((e) => {
+    return events.filter((e) => {
       if (q) {
         const hay = [e.name, e.instructorName, baseName(e.baseId)?.name ?? ""]
           .join(" ")
@@ -40,7 +41,7 @@ export function CoLearningExplorer({
       return true;
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [initialEvents, query, skills, levels, bases]);
+  }, [events, query, skills, levels, bases]);
 
   return (
     <div className="space-y-4">
@@ -75,8 +76,22 @@ export function CoLearningExplorer({
         </div>
       </div>
 
+      {isLoading ? (
+        <ul className="space-y-3">
+          {Array.from({ length: 3 }).map((_, i) => (
+            <li key={i}>
+              <Card className="p-4 space-y-2">
+                <Skeleton className="h-4 w-1/2" />
+                <Skeleton className="h-3 w-1/3" />
+                <Skeleton className="h-3 w-2/3" />
+              </Card>
+            </li>
+          ))}
+        </ul>
+      ) : null}
+
       <ul className="space-y-3">
-        {filtered.length === 0 ? (
+        {!isLoading && filtered.length === 0 ? (
           <Card className="p-8 text-center text-sm text-muted-foreground">没有符合条件的活动</Card>
         ) : null}
         {filtered.map((e) => {

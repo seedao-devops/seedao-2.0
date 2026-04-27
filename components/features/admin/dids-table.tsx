@@ -12,6 +12,7 @@ import { Input } from "@/components/ui/input";
 import {
   Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle,
 } from "@/components/ui/dialog";
+import { ApiError, apiPost } from "@/lib/api-client";
 import { DID_STATUS_LABELS } from "@/lib/features/_shared/enums";
 import type { Application } from "@/lib/features/_shared/fake-db";
 
@@ -36,18 +37,15 @@ export function DidsTable({ dids }: { dids: Row[] }) {
     }
     setBusy(true);
     try {
-      const res = await fetch(`/api/admin/dids/${active.id}/assign`, {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify({ didInfo }),
-      });
-      if (!res.ok) {
-        toast.error("操作失败");
-        return;
+      try {
+        await apiPost(`/api/admin/dids/${active.id}/assign`, { didInfo });
+        toast.success("DID 已分配");
+        setActive(null);
+        router.refresh();
+      } catch (err) {
+        if (err instanceof ApiError) toast.error("操作失败");
+        else throw err;
       }
-      toast.success("DID 已分配");
-      setActive(null);
-      router.refresh();
     } finally {
       setBusy(false);
     }

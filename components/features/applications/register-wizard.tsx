@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -15,6 +16,7 @@ import {
   type ApplicationFormInput,
 } from "@/lib/features/applications/schema";
 import { INTEREST_TAGS } from "@/lib/features/_shared/enums";
+import { ApiError, apiPost } from "@/lib/api-client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -60,21 +62,23 @@ export function RegisterWizard() {
     setSubmitting(true);
     try {
       const credentials = credentialsForm.getValues();
-      const res = await fetch("/api/auth/register", {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify({ credentials, application: values }),
-      });
-      if (!res.ok) {
-        const data = await res.json().catch(() => ({}));
-        if (data.error === "EMAIL_TAKEN") toast.error("邮箱已被注册");
-        else if (data.error === "PHONE_TAKEN") toast.error("手机号已被注册");
-        else if (data.error === "NICKNAME_TAKEN") toast.error("昵称已被使用");
-        else toast.error("提交失败，请稍后重试");
-        return;
+      try {
+        await apiPost("/api/auth/register", {
+          credentials,
+          application: values,
+        });
+        toast.success("申请已提交");
+        setStep(2);
+      } catch (err) {
+        if (err instanceof ApiError) {
+          if (err.code === "EMAIL_TAKEN") toast.error("邮箱已被注册");
+          else if (err.code === "PHONE_TAKEN") toast.error("手机号已被注册");
+          else if (err.code === "NICKNAME_TAKEN") toast.error("昵称已被使用");
+          else toast.error("提交失败，请稍后重试");
+        } else {
+          throw err;
+        }
       }
-      toast.success("申请已提交");
-      setStep(2);
     } finally {
       setSubmitting(false);
     }
@@ -83,14 +87,18 @@ export function RegisterWizard() {
   async function markPaid() {
     setSubmitting(true);
     try {
-      const res = await fetch("/api/applications/me/mark-paid", { method: "POST" });
-      if (!res.ok) {
-        toast.error("更新失败");
-        return;
+      try {
+        await apiPost("/api/applications/me/mark-paid");
+        toast.success("已记录为已付款，等待审核");
+        router.push("/register");
+        router.refresh();
+      } catch (err) {
+        if (err instanceof ApiError) {
+          toast.error("更新失败");
+        } else {
+          throw err;
+        }
       }
-      toast.success("已记录为已付款，等待审核");
-      router.push("/register");
-      router.refresh();
     } finally {
       setSubmitting(false);
     }
@@ -169,6 +177,12 @@ export function RegisterWizard() {
             <Button type="submit" className="w-full">
               下一步
             </Button>
+            <p className="text-center text-sm text-muted-foreground">
+              已有账户？{" "}
+              <Link href="/login" className="text-foreground font-medium hover:underline">
+                登录
+              </Link>
+            </p>
           </form>
         </Form>
       ) : null}

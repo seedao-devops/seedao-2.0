@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { LogOut, UserCircle } from "lucide-react";
 import { toast } from "sonner";
+import { apiPost } from "@/lib/api-client";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -21,7 +22,7 @@ export function UserHeaderMenu({ identity }: { identity: string }) {
   const router = useRouter();
 
   async function logout() {
-    await fetch("/api/auth/logout", { method: "POST" });
+    await apiPost("/api/auth/logout").catch(() => {});
     toast.success("已退出登录");
     router.push("/");
     router.refresh();

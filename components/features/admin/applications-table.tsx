@@ -13,6 +13,7 @@ import {
   Sheet, SheetContent, SheetHeader, SheetTitle,
 } from "@/components/ui/sheet";
 import { Textarea } from "@/components/ui/textarea";
+import { ApiError, apiPost } from "@/lib/api-client";
 import {
   PAYMENT_STATUS_LABELS,
   REVIEW_STATUS_LABELS,
@@ -36,15 +37,18 @@ export function ApplicationsTable({ applications }: { applications: Row[] }) {
     if (!active) return;
     setBusy(true);
     try {
-      const res = await fetch(`/api/admin/applications/${active.id}/approve`, { method: "POST" });
-      if (!res.ok) {
-        const data = await res.json().catch(() => ({}));
-        toast.error(data.error === "NOT_PAID" ? "用户尚未付款，无法通过" : "操作失败");
-        return;
+      try {
+        await apiPost(`/api/admin/applications/${active.id}/approve`);
+        toast.success("已通过，DID 分配任务已生成");
+        setActive(null);
+        router.refresh();
+      } catch (err) {
+        if (err instanceof ApiError) {
+          toast.error(err.code === "NOT_PAID" ? "用户尚未付款，无法通过" : "操作失败");
+        } else {
+          throw err;
+        }
       }
-      toast.success("已通过，DID 分配任务已生成");
-      setActive(null);
-      router.refresh();
     } finally {
       setBusy(false);
     }
@@ -58,18 +62,15 @@ export function ApplicationsTable({ applications }: { applications: Row[] }) {
     }
     setBusy(true);
     try {
-      const res = await fetch(`/api/admin/applications/${active.id}/reject`, {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify({ reason }),
-      });
-      if (!res.ok) {
-        toast.error("操作失败");
-        return;
+      try {
+        await apiPost(`/api/admin/applications/${active.id}/reject`, { reason });
+        toast.success("已拒绝，退款任务已生成");
+        setActive(null);
+        router.refresh();
+      } catch (err) {
+        if (err instanceof ApiError) toast.error("操作失败");
+        else throw err;
       }
-      toast.success("已拒绝，退款任务已生成");
-      setActive(null);
-      router.refresh();
     } finally {
       setBusy(false);
     }

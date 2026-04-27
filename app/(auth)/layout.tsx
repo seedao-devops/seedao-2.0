@@ -1,12 +1,17 @@
 import Link from "next/link";
+import { AuthBackLink } from "@/components/layout/auth-back-link";
 
 export default function AuthLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
     <div className="mx-auto w-full max-w-md min-h-dvh flex flex-col bg-background">
-      <header className="px-5 py-4">
-        <Link href="/" className="text-lg font-serif font-bold tracking-tight">
+      <header className="px-5 py-4 flex items-center justify-between gap-3">
+        <AuthBackLink />
+        <Link
+          href="/"
+          className="text-lg font-serif font-bold tracking-tight ml-auto"
+        >
           SeeDAO
         </Link>
       </header>

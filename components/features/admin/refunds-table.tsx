@@ -11,6 +11,7 @@ import {
   PAYMENT_STATUS_LABELS,
   REVIEW_STATUS_LABELS,
 } from "@/lib/features/_shared/enums";
+import { ApiError, apiPost } from "@/lib/api-client";
 import type { Application } from "@/lib/features/_shared/fake-db";
 
 type Row = Application & { contact: string };
@@ -19,13 +20,14 @@ export function RefundsTable({ refunds }: { refunds: Row[] }) {
   const router = useRouter();
 
   async function complete(id: string) {
-    const res = await fetch(`/api/admin/refunds/${id}/complete`, { method: "POST" });
-    if (!res.ok) {
-      toast.error("操作失败");
-      return;
+    try {
+      await apiPost(`/api/admin/refunds/${id}/complete`);
+      toast.success("已标记为已退款");
+      router.refresh();
+    } catch (err) {
+      if (err instanceof ApiError) toast.error("操作失败");
+      else throw err;
     }
-    toast.success("已标记为已退款");
-    router.refresh();
   }
 
   return (

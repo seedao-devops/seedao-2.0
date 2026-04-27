@@ -4,6 +4,8 @@ import { useEffect, useState } from "react";
 import { QRCodeSVG } from "qrcode.react";
 import { Copy, Save } from "lucide-react";
 import { toast } from "sonner";
+import { ApiError, apiPut } from "@/lib/api-client";
+import { useJourney } from "@/lib/features/journey/hooks";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
@@ -27,6 +29,7 @@ export function SharePanel({
   userId: string;
   initialVisibility: FieldVisibility;
 }) {
+  const { journey, mutate } = useJourney();
   const [visibility, setVisibility] = useState<FieldVisibility>(initialVisibility);
   const [saving, setSaving] = useState(false);
   const [shareUrl, setShareUrl] = useState("");
@@ -38,21 +41,23 @@ export function SharePanel({
   }, [userId]);
 
   async function save() {
+    if (!journey) {
+      toast.error("数据未就绪，请稍后重试");
+      return;
+    }
     setSaving(true);
     try {
-      // Reuse the journey upsert by fetching current journey then patching only visibility.
-      const cur = await fetch("/api/journey/me").then((r) => r.json());
-      const j = cur.journey;
-      const res = await fetch("/api/journey/me", {
-        method: "PUT",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify({ ...j, fieldVisibility: visibility }),
-      });
-      if (!res.ok) {
-        toast.error("保存失败");
-        return;
+      try {
+        await apiPut("/api/journey/me", {
+          ...journey,
+          fieldVisibility: visibility,
+        });
+        toast.success("可见性已更新");
+        await mutate();
+      } catch (err) {
+        if (err instanceof ApiError) toast.error("保存失败");
+        else throw err;
       }
-      toast.success("可见性已更新");
     } finally {
       setSaving(false);
     }

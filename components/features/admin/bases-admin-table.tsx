@@ -9,6 +9,7 @@ import {
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { ApiError, apiDelete } from "@/lib/api-client";
 import type { Base } from "@/lib/features/_shared/fake-db";
 
 export function BasesAdminTable({ bases }: { bases: Base[] }) {
@@ -16,13 +17,14 @@ export function BasesAdminTable({ bases }: { bases: Base[] }) {
 
   async function remove(id: string, name: string) {
     if (!confirm(`确定删除基地「${name}」吗？此操作不可撤销。`)) return;
-    const res = await fetch(`/api/admin/bases/${id}`, { method: "DELETE" });
-    if (!res.ok) {
-      toast.error("删除失败");
-      return;
+    try {
+      await apiDelete(`/api/admin/bases/${id}`);
+      toast.success("已删除");
+      router.refresh();
+    } catch (err) {
+      if (err instanceof ApiError) toast.error("删除失败");
+      else throw err;
     }
-    toast.success("已删除");
-    router.refresh();
   }
 
   return (

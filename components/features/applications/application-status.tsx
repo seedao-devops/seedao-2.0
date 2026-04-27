@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { Check, Clock, X, ExternalLink } from "lucide-react";
 import { toast } from "sonner";
+import { ApiError, apiPost } from "@/lib/api-client";
 import {
   PAYMENT_STATUS_LABELS,
   REVIEW_STATUS_LABELS,
@@ -17,17 +18,18 @@ export function ApplicationStatus({ application }: { application: Application })
   const router = useRouter();
 
   async function markPaid() {
-    const res = await fetch("/api/applications/me/mark-paid", { method: "POST" });
-    if (!res.ok) {
-      toast.error("更新失败");
-      return;
+    try {
+      await apiPost("/api/applications/me/mark-paid");
+      toast.success("已记录为已付款");
+      router.refresh();
+    } catch (err) {
+      if (err instanceof ApiError) toast.error("更新失败");
+      else throw err;
     }
-    toast.success("已记录为已付款");
-    router.refresh();
   }
 
   async function logout() {
-    await fetch("/api/auth/logout", { method: "POST" });
+    await apiPost("/api/auth/logout").catch(() => {});
     router.push("/");
     router.refresh();
   }
