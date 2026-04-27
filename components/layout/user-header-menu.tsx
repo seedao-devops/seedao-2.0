@@ -2,9 +2,10 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { LogOut, UserCircle } from "lucide-react";
+import { LogOut } from "lucide-react";
 import { toast } from "sonner";
 import { apiPost } from "@/lib/api-client";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -17,8 +18,19 @@ import {
 /**
  * Header user menu for authenticated users. Provides a single, always-visible
  * place to access account settings and log out from any page.
+ *
+ * Renders the journey avatar in the trigger so it's instantly obvious who is
+ * logged in (or that anyone is logged in at all).
  */
-export function UserHeaderMenu({ identity }: { identity: string }) {
+export function UserHeaderMenu({
+  identity,
+  avatarUrl,
+  displayName,
+}: {
+  identity: string;
+  avatarUrl: string;
+  displayName: string;
+}) {
   const router = useRouter();
 
   async function logout() {
@@ -28,15 +40,23 @@ export function UserHeaderMenu({ identity }: { identity: string }) {
     router.refresh();
   }
 
+  const fallbackChar =
+    (displayName || identity).trim().charAt(0).toUpperCase() || "U";
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <button
           type="button"
           aria-label="账户菜单"
-          className="rounded-full p-1 text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+          className="rounded-full ring-1 ring-border hover:ring-foreground/30 transition-shadow"
         >
-          <UserCircle className="size-6" />
+          <Avatar className="size-8">
+            <AvatarImage src={avatarUrl} alt={displayName || identity} />
+            <AvatarFallback className="text-caption font-medium">
+              {fallbackChar}
+            </AvatarFallback>
+          </Avatar>
         </button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" sideOffset={8} className="w-52">
