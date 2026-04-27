@@ -20,8 +20,8 @@ export default async function AdminDidsPage() {
   return (
     <div className="space-y-5">
       <div className="space-y-1">
-        <h1 className="text-2xl font-serif font-bold">DID 管理</h1>
-        <p className="text-sm text-muted-foreground">
+        <h1>DID 管理</h1>
+        <p className="text-body text-muted-foreground">
           为审核通过的成员分配链上身份。分配后用户在「我的旅程」可见。
         </p>
       </div>

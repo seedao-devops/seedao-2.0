@@ -114,7 +114,7 @@ export function StaysSection() {
             />
             <div className="space-y-3">
               {stays.fields.length === 0 ? (
-                <p className="text-sm text-muted-foreground text-center py-6">
+                <p className="text-body text-muted-foreground text-center py-6">
                   还没有添加旅居记录
                 </p>
               ) : null}

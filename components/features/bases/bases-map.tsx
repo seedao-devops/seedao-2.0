@@ -26,12 +26,12 @@ export function BasesMap({ bases }: { bases: Base[] }) {
     <Card className="p-4 bg-gradient-to-br from-primary/5 via-background to-accent/10">
       <div className="flex items-center gap-2 mb-3">
         <MapPin className="size-4 text-primary" />
-        <p className="text-sm font-medium">地图视图（按省份分组）</p>
+        <p className="text-body font-medium">地图视图（按省份分组）</p>
       </div>
       <div className="space-y-3">
         {Array.from(byProvince.entries()).map(([prov, arr]) => (
           <div key={prov} className="space-y-1.5">
-            <p className="text-xs font-medium text-muted-foreground tracking-widest uppercase">
+            <p className="text-overline text-muted-foreground uppercase">
               {prov}
             </p>
             <div className="flex flex-wrap gap-2">
@@ -39,7 +39,7 @@ export function BasesMap({ bases }: { bases: Base[] }) {
                 <Link
                   key={b.id}
                   href={`/bases/${b.id}`}
-                  className="px-2.5 py-1 rounded-full text-xs bg-background border hover:border-primary transition-colors"
+                  className="px-2.5 py-1 rounded-full text-caption bg-background border hover:border-primary transition-colors"
                 >
                   {b.emoji} {b.name}
                 </Link>

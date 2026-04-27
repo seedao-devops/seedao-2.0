@@ -24,8 +24,8 @@ export default async function AdminRefundsPage() {
   return (
     <div className="space-y-5">
       <div className="space-y-1">
-        <h1 className="text-2xl font-serif font-bold">退款管理</h1>
-        <p className="text-sm text-muted-foreground">
+        <h1>退款管理</h1>
+        <p className="text-body text-muted-foreground">
           审核被拒后产生的退款任务。完成线下退款后点击「标记已退款」。
         </p>
       </div>

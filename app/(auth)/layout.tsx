@@ -10,7 +10,7 @@ export default function AuthLayout({
         <AuthBackLink />
         <Link
           href="/"
-          className="text-lg font-serif font-bold tracking-tight ml-auto"
+          className="text-h4 font-serif font-bold ml-auto"
         >
           SeeDAO
         </Link>

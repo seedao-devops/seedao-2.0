@@ -58,15 +58,15 @@ export function SecurityPanel({ contact }: { contact: { phone?: string; email?: 
   return (
     <div className="space-y-4">
       <Card className="p-5 space-y-3">
-        <h3 className="font-serif text-lg font-semibold">绑定信息</h3>
-        <div className="text-sm space-y-1.5">
+        <h3>绑定信息</h3>
+        <div className="text-body space-y-1.5">
           {contact.phone ? <p>手机：<span className="text-muted-foreground">{contact.phone}</span></p> : null}
           {contact.email ? <p>邮箱：<span className="text-muted-foreground">{contact.email}</span></p> : null}
         </div>
       </Card>
 
       <Card className="p-5 space-y-4">
-        <h3 className="font-serif text-lg font-semibold">修改密码</h3>
+        <h3>修改密码</h3>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
             <div className="space-y-2">

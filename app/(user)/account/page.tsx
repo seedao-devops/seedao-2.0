@@ -6,7 +6,7 @@ export default async function AccountPage() {
   if (!session) return null;
   return (
     <div className="px-5 pt-4 pb-8 space-y-5">
-      <h1 className="text-2xl font-serif font-bold">账户管理</h1>
+      <h1>账户管理</h1>
       <AccountTabs userId={session.sub} />
     </div>
   );

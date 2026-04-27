@@ -7,15 +7,15 @@ export default function Landing() {
   return (
     <div className="px-5 pt-6 pb-10 space-y-10">
       <section className="space-y-4">
-        <p className="text-sm text-muted-foreground tracking-widest uppercase">
+        <p className="text-overline text-muted-foreground uppercase">
           一个属于数字游民的家
         </p>
-        <h1 className="text-4xl font-serif font-bold leading-tight">
+        <h1 className="text-display">
           慢下来，
           <br />
           长在路上。
         </h1>
-        <p className="text-base text-muted-foreground leading-relaxed">
+        <p className="text-body-lg text-muted-foreground leading-relaxed">
           SeeDAO 把分散在山林、海岛、古镇、店铺里的基地与共学活动连接起来，
           让你在旅途中认识同行者、习得新技能、创造作品、被看见。
         </p>
@@ -75,8 +75,8 @@ function FeatureCard({
             {icon}
           </span>
           <div className="space-y-1.5">
-            <h3 className="font-serif font-semibold text-lg">{title}</h3>
-            <p className="text-sm text-muted-foreground leading-relaxed">{desc}</p>
+            <h3>{title}</h3>
+            <p className="text-body text-muted-foreground leading-relaxed">{desc}</p>
           </div>
         </div>
       </Card>

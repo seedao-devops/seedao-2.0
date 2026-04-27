@@ -52,9 +52,9 @@ export function JourneyView({
           />
         ) : null}
         <div className="space-y-1">
-          <h2 className="text-xl font-serif font-bold">{journey.displayName}</h2>
+          <h2>{journey.displayName}</h2>
           {journey.bio ? (
-            <p className="text-sm text-muted-foreground line-clamp-3">{journey.bio}</p>
+            <p className="text-body text-muted-foreground line-clamp-3">{journey.bio}</p>
           ) : null}
         </div>
       </div>
@@ -71,11 +71,11 @@ export function JourneyView({
                       <p className="font-medium">
                         {baseEmoji(s.baseId)} {s.baseId ? baseName(s.baseId) : s.baseNameFree}
                       </p>
-                      <p className="text-xs text-muted-foreground flex items-center gap-1">
+                      <p className="text-caption text-muted-foreground flex items-center gap-1">
                         <MapPin className="size-3" /> {s.location}
                       </p>
                     </div>
-                    <span className="text-xs text-muted-foreground flex items-center gap-1 shrink-0">
+                    <span className="text-caption text-muted-foreground flex items-center gap-1 shrink-0">
                       <CalendarDays className="size-3" />
                       {s.period.start} → {s.period.end}
                     </span>
@@ -136,14 +136,14 @@ export function JourneyView({
                     <p className="font-medium">{w.title}</p>
                     <Badge variant="secondary">{WORK_TYPE_LABELS[w.type]}</Badge>
                   </div>
-                  <p className="text-xs text-muted-foreground">
+                  <p className="text-caption text-muted-foreground">
                     {baseName(w.baseId)} · {w.period.start} → {w.period.end}
                   </p>
                   {w.description ? (
-                    <p className="text-sm text-muted-foreground line-clamp-3">{w.description}</p>
+                    <p className="text-body text-muted-foreground line-clamp-3">{w.description}</p>
                   ) : null}
                   {w.collaborators ? (
-                    <p className="text-xs text-muted-foreground">合作者：{w.collaborators}</p>
+                    <p className="text-caption text-muted-foreground">合作者：{w.collaborators}</p>
                   ) : null}
                 </Card>
               </li>
@@ -173,7 +173,9 @@ export function JourneyView({
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <section className="space-y-2">
-      <h3 className="text-sm font-medium text-muted-foreground tracking-wide">{title}</h3>
+      <h3 className="text-body font-sans font-medium text-muted-foreground tracking-wide">
+        {title}
+      </h3>
       {children}
     </section>
   );
@@ -194,10 +196,10 @@ function EventRow({
         <p className="font-medium">{event.name}</p>
         <Badge variant="secondary">{LEVEL_TAG_LABELS[event.level]}</Badge>
       </div>
-      <p className="text-xs text-muted-foreground">
+      <p className="text-caption text-muted-foreground">
         讲师：{event.instructorName} · {baseLabel} · {event.period.start} → {event.period.end}
       </p>
-      {extra ? <p className="text-xs text-muted-foreground">{extra}</p> : null}
+      {extra ? <p className="text-caption text-muted-foreground">{extra}</p> : null}
     </Card>
   );
 }

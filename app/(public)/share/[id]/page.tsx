@@ -32,8 +32,8 @@ export default async function ShareProfilePage({
   return (
     <div className="px-5 pt-4 pb-8 space-y-5">
       <div className="space-y-1">
-        <p className="text-xs uppercase tracking-widest text-muted-foreground">SeeDAO 成员</p>
-        <h1 className="text-2xl font-serif font-bold">{visible.displayName} 的旅程</h1>
+        <p className="text-overline uppercase text-muted-foreground">SeeDAO 成员</p>
+        <h1>{visible.displayName} 的旅程</h1>
       </div>
       <JourneyView journey={visible} bases={bases} events={events} hideAvatar={!v.avatar} />
     </div>

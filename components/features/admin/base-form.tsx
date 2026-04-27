@@ -400,7 +400,7 @@ export function BaseForm({
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <Card className="p-5 space-y-4">
-      <h3 className="font-serif text-lg font-semibold">{title}</h3>
+      <h3>{title}</h3>
       {children}
     </Card>
   );
@@ -418,7 +418,7 @@ function ArrayBlock({
   return (
     <div className="space-y-2">
       <div className="flex items-center justify-between">
-        {title ? <h4 className="text-sm font-medium">{title}</h4> : <span />}
+        {title ? <h4 className="text-body font-sans font-medium">{title}</h4> : <span />}
         <Button type="button" variant="outline" size="sm" onClick={onAdd}>
           <Plus className="size-4" />
           添加

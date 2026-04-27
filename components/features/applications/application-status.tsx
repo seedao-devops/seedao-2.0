@@ -39,23 +39,23 @@ export function ApplicationStatus({ application }: { application: Application })
   return (
     <div className="space-y-6 pt-2">
       <div className="space-y-2">
-        <h1 className="text-3xl font-serif font-bold">申请进度</h1>
-        <p className="text-sm text-muted-foreground">
+        <h1>申请进度</h1>
+        <p className="text-body text-muted-foreground">
           昵称：<span className="text-foreground">{application.nickname}</span>
         </p>
       </div>
 
       <Card className="p-5 space-y-3">
         <div className="flex items-center justify-between">
-          <span className="text-sm text-muted-foreground">付款状态</span>
+          <span className="text-body text-muted-foreground">付款状态</span>
           <Badge variant="secondary">{PAYMENT_STATUS_LABELS[application.paymentStatus]}</Badge>
         </div>
         <div className="flex items-center justify-between">
-          <span className="text-sm text-muted-foreground">审核状态</span>
+          <span className="text-body text-muted-foreground">审核状态</span>
           <Badge variant="secondary">{REVIEW_STATUS_LABELS[application.reviewStatus]}</Badge>
         </div>
         {application.rejectReason ? (
-          <div className="rounded-lg bg-destructive/10 p-3 text-sm text-destructive">
+          <div className="rounded-lg bg-destructive/10 p-3 text-body text-destructive">
             <p className="font-medium mb-1">拒绝理由</p>
             <p>{application.rejectReason}</p>
           </div>
@@ -88,7 +88,7 @@ export function ApplicationStatus({ application }: { application: Application })
               </span>
               <div className="space-y-0.5">
                 <p className="font-medium">{s.label}</p>
-                <p className="text-sm text-muted-foreground">{s.desc}</p>
+                <p className="text-body text-muted-foreground">{s.desc}</p>
               </div>
             </div>
           </li>

@@ -87,6 +87,77 @@ export const tokens = {
     serif: "var(--font-serif)",
     mono: "var(--font-mono)",
   },
+  /**
+   * Semantic typography scale. Edit values here AND mirror in
+   * `app/globals.css` (`@theme inline { --text-* }`) — globals.css is what
+   * Tailwind actually consumes; this object is the typed mirror so editors
+   * can autocomplete and so README/AGENTS can point to a single TS source.
+   *
+   * Base body is 14px (0.875rem). Headings follow ~1.25 (major third).
+   * Use the matching utility classes in JSX:
+   *   text-overline  text-caption  text-body-sm  text-body  text-body-lg
+   *   text-h4  text-h3  text-h2  text-h1  text-display
+   */
+  typography: {
+    scale: {
+      overline: {
+        size: "0.6875rem",
+        lineHeight: "1rem",
+        weight: 600,
+        letterSpacing: "0.08em",
+      },
+      caption: {
+        size: "0.75rem",
+        lineHeight: "1rem",
+        weight: 400,
+      },
+      bodySm: {
+        size: "0.8125rem",
+        lineHeight: "1.125rem",
+        weight: 400,
+      },
+      body: {
+        size: "0.875rem",
+        lineHeight: "1.375rem",
+        weight: 400,
+      },
+      bodyLg: {
+        size: "1rem",
+        lineHeight: "1.5rem",
+        weight: 400,
+      },
+      h4: {
+        size: "1.125rem",
+        lineHeight: "1.5rem",
+        weight: 600,
+        letterSpacing: "-0.005em",
+      },
+      h3: {
+        size: "1.375rem",
+        lineHeight: "1.75rem",
+        weight: 700,
+        letterSpacing: "-0.01em",
+      },
+      h2: {
+        size: "1.75rem",
+        lineHeight: "2.125rem",
+        weight: 700,
+        letterSpacing: "-0.015em",
+      },
+      h1: {
+        size: "2.125rem",
+        lineHeight: "2.5rem",
+        weight: 700,
+        letterSpacing: "-0.02em",
+      },
+      display: {
+        size: "clamp(2.25rem, 4vw + 1rem, 3rem)",
+        lineHeight: "1.05",
+        weight: 800,
+        letterSpacing: "-0.025em",
+      },
+    },
+  },
   radii: {
     base: "0.875rem", // generous, like the reference
   },

@@ -101,7 +101,7 @@ export function TeachingSection() {
             />
             <div className="space-y-3">
               {teaching.fields.length === 0 ? (
-                <p className="text-sm text-muted-foreground text-center py-6">
+                <p className="text-body text-muted-foreground text-center py-6">
                   还没有添加教学记录
                 </p>
               ) : null}

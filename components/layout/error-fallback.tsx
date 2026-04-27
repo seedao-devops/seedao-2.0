@@ -32,8 +32,8 @@ export function ErrorFallback({
           <AlertTriangle className="size-6" />
         </div>
         <div className="space-y-1.5">
-          <h2 className="font-serif text-xl font-bold">出错了</h2>
-          <p className="text-sm text-muted-foreground">
+          <h2 className="text-h3">出错了</h2>
+          <p className="text-body text-muted-foreground">
             页面遇到了一个未知问题，你可以尝试重新加载。
           </p>
         </div>

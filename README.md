@@ -83,6 +83,25 @@ npm run lint     # eslint
 
 Edit `lib/design-tokens.ts` and the matching CSS variables in `app/globals.css`. Both light and dark palettes are defined in `oklch`. Fonts (Noto Sans SC, Noto Serif SC, Geist Mono) are wired up in `app/layout.tsx`.
 
+### Typography
+
+The font scale is semantic, not absolute — call sites write `text-h1`, `text-body`, `text-caption`, etc. and never `text-2xl`/`text-sm`. Each token bakes in a tuned `line-height`, `letter-spacing` and `font-weight`, so an `<h1>` already renders correctly without `font-serif font-bold` on every page.
+
+| Token | Size | Use for |
+|-------|------|---------|
+| `text-display` | clamp 36–48px / 800 / serif (apply manually) | landing hero only |
+| `text-h1` (default `<h1>`) | 34px / 700 / serif | page titles |
+| `text-h2` (default `<h2>`) | 28px / 700 / serif | section headers |
+| `text-h3` (default `<h3>`) | 22px / 700 / serif | card titles |
+| `text-h4` (default `<h4>`) | 18px / 600 / serif | inline section titles |
+| `text-body-lg` | 16px / 400 | lead paragraphs |
+| `text-body` (default `<body>`) | 14px / 400 | descriptions, labels, tables |
+| `text-body-sm` | 13px / 400 | dense lists, table cells |
+| `text-caption` | 12px / 400 | meta, footnotes |
+| `text-overline` | 11px / 600 / +0.08em | uppercase eyebrows |
+
+To re-tune the scale, change values in `tokens.typography.scale` (`lib/design-tokens.ts`) **and** the matching `--text-*` variables in `app/globals.css` — they are a manual mirror so the typed object can document/autocomplete in editors while Tailwind v4 actually consumes the CSS variables.
+
 ## Adding a new feature
 
 1. Create `lib/features/<name>/` with `schema.ts` (zod), `repo.ts` (fake-db access).

@@ -71,14 +71,14 @@ export function SharePanel({
   return (
     <div className="space-y-4">
       <Card className="p-5 space-y-3">
-        <h3 className="font-serif text-lg font-semibold">字段可见性</h3>
-        <p className="text-sm text-muted-foreground">
+        <h3>字段可见性</h3>
+        <p className="text-body text-muted-foreground">
           关闭某项后，访客打开你的分享链接时不会看到这一项。
         </p>
         <ul className="divide-y">
           {ROWS.map((r) => (
             <li key={r.key} className="flex items-center justify-between py-3">
-              <span className="text-sm">{r.label}</span>
+              <span className="text-body">{r.label}</span>
               <Switch
                 checked={visibility[r.key]}
                 onCheckedChange={(v) => setVisibility((p) => ({ ...p, [r.key]: v }))}
@@ -107,7 +107,7 @@ export function SharePanel({
               <QRCodeSVG value={shareUrl} size={208} bgColor="transparent" />
             ) : null}
           </div>
-          <p className="text-xs text-muted-foreground break-all text-center">{shareUrl}</p>
+          <p className="text-caption text-muted-foreground break-all text-center">{shareUrl}</p>
           <Button variant="outline" className="w-full" onClick={copy}>
             <Copy className="size-4" />
             复制链接

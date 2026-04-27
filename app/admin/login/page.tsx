@@ -66,8 +66,8 @@ export default function AdminLoginPage() {
     <div className="min-h-dvh grid place-items-center bg-muted/30 px-4">
       <Card className="w-full max-w-sm p-7 space-y-6">
         <div className="space-y-1">
-          <h1 className="text-2xl font-serif font-bold">SeeDAO 控制台</h1>
-          <p className="text-sm text-muted-foreground">仅限管理员登录</p>
+          <h1>SeeDAO 控制台</h1>
+          <p className="text-body text-muted-foreground">仅限管理员登录</p>
         </div>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">

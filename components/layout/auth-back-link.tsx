@@ -28,7 +28,7 @@ export function AuthBackLink() {
   return (
     <Link
       href={href}
-      className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors"
+      className="inline-flex items-center gap-1 text-body text-muted-foreground hover:text-foreground transition-colors"
       aria-label={label}
     >
       <ChevronLeft className="size-4" />

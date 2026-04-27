@@ -68,7 +68,7 @@ export function DidsTable({ dids }: { dids: Row[] }) {
           <TableBody>
             {dids.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={6} className="text-center text-sm text-muted-foreground py-12">
+                <TableCell colSpan={6} className="text-center text-body text-muted-foreground py-12">
                   暂无任务
                 </TableCell>
               </TableRow>
@@ -85,7 +85,7 @@ export function DidsTable({ dids }: { dids: Row[] }) {
                     {d.didStatus ? DID_STATUS_LABELS[d.didStatus] : "—"}
                   </Badge>
                 </TableCell>
-                <TableCell className="font-mono text-xs text-muted-foreground max-w-sm truncate">
+                <TableCell className="font-mono text-caption text-muted-foreground max-w-sm truncate">
                   {d.didInfo ?? "—"}
                 </TableCell>
                 <TableCell className="text-right">

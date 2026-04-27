@@ -134,19 +134,19 @@ export function SectionCard({
       <div className="flex items-start justify-between gap-3">
         <div className="space-y-1 min-w-0">
           <div className="flex items-center gap-2">
-            <h3 className="font-serif text-base font-semibold">{title}</h3>
+            <h4>{title}</h4>
             {count ? (
-              <span className="text-xs text-muted-foreground rounded-full bg-muted px-2 py-0.5">
+              <span className="text-caption text-muted-foreground rounded-full bg-muted px-2 py-0.5">
                 {count}
               </span>
             ) : null}
           </div>
           {summary ? (
-            <p className="text-sm text-muted-foreground line-clamp-2 whitespace-pre-line">
+            <p className="text-body text-muted-foreground line-clamp-2 whitespace-pre-line">
               {summary}
             </p>
           ) : (
-            <p className="text-sm text-muted-foreground">未填写</p>
+            <p className="text-body text-muted-foreground">未填写</p>
           )}
         </div>
         <Button variant="outline" size="sm" onClick={onEdit}>

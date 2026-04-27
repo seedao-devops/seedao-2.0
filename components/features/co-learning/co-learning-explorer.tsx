@@ -92,7 +92,7 @@ export function CoLearningExplorer() {
 
       <ul className="space-y-3">
         {!isLoading && filtered.length === 0 ? (
-          <Card className="p-8 text-center text-sm text-muted-foreground">没有符合条件的活动</Card>
+          <Card className="p-8 text-center text-body text-muted-foreground">没有符合条件的活动</Card>
         ) : null}
         {filtered.map((e) => {
           const base = baseName(e.baseId);
@@ -102,9 +102,9 @@ export function CoLearningExplorer() {
                 <div className="flex items-start justify-between gap-2">
                   <div className="space-y-1">
                     <p className="font-medium">{e.name}</p>
-                    <p className="text-xs text-muted-foreground">讲师：{e.instructorName}</p>
+                    <p className="text-caption text-muted-foreground">讲师：{e.instructorName}</p>
                     {base ? (
-                      <p className="text-xs text-muted-foreground">
+                      <p className="text-caption text-muted-foreground">
                         基地：{base.emoji} {base.name}
                       </p>
                     ) : null}
@@ -118,7 +118,7 @@ export function CoLearningExplorer() {
                     </Badge>
                   ))}
                 </div>
-                <p className="text-xs text-muted-foreground">
+                <p className="text-caption text-muted-foreground">
                   {e.period.start} → {e.period.end}
                 </p>
               </Card>

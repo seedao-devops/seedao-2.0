@@ -46,7 +46,7 @@ export function RefundsTable({ refunds }: { refunds: Row[] }) {
         <TableBody>
           {refunds.length === 0 ? (
             <TableRow>
-              <TableCell colSpan={6} className="text-center text-sm text-muted-foreground py-12">
+              <TableCell colSpan={6} className="text-center text-body text-muted-foreground py-12">
                 暂无退款任务
               </TableCell>
             </TableRow>
@@ -66,7 +66,7 @@ export function RefundsTable({ refunds }: { refunds: Row[] }) {
                     标记已退款
                   </Button>
                 ) : (
-                  <span className="text-xs text-muted-foreground">已完成</span>
+                  <span className="text-caption text-muted-foreground">已完成</span>
                 )}
               </TableCell>
             </TableRow>

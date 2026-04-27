@@ -23,7 +23,7 @@ export function UserBottomNav() {
               <Link
                 href={href}
                 className={cn(
-                  "flex flex-col items-center justify-center gap-1 py-2.5 text-xs",
+                  "flex flex-col items-center justify-center gap-1 py-2.5 text-caption",
                   active ? "text-primary" : "text-muted-foreground hover:text-foreground",
                 )}
               >

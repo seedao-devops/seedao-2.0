@@ -17,7 +17,7 @@ export function AdminShell({
     <div className="min-h-dvh flex bg-muted/30">
       <aside className="hidden md:flex md:w-60 lg:w-64 shrink-0 flex-col border-r bg-sidebar text-sidebar-foreground">
         <div className="px-5 py-4 border-b">
-          <Link href="/admin/applications" className="font-serif font-bold text-lg">
+          <Link href="/admin/applications" className="text-h4 font-serif font-bold">
             SeeDAO 控制台
           </Link>
         </div>

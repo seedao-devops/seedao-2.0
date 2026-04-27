@@ -68,7 +68,7 @@ export function DevQuickLogin({
 
   return (
     <div className="rounded-lg border border-dashed border-amber-400/60 bg-amber-50/60 p-3 space-y-2 text-amber-900 dark:bg-amber-900/10 dark:text-amber-200">
-      <div className="flex items-center gap-1.5 text-xs font-medium">
+      <div className="flex items-center gap-1.5 text-caption font-medium">
         <Sparkles className="size-3.5" />
         演示账号一键登录
       </div>

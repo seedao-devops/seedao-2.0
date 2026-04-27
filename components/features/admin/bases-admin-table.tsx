@@ -42,7 +42,7 @@ export function BasesAdminTable({ bases }: { bases: Base[] }) {
         <TableBody>
           {bases.length === 0 ? (
             <TableRow>
-              <TableCell colSpan={5} className="text-center text-sm text-muted-foreground py-12">
+              <TableCell colSpan={5} className="text-center text-body text-muted-foreground py-12">
                 暂无基地
               </TableCell>
             </TableRow>

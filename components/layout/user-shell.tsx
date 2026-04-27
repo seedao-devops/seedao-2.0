@@ -16,7 +16,7 @@ export async function UserShell({ children }: { children: React.ReactNode }) {
   return (
     <div className="mx-auto w-full max-w-md min-h-dvh flex flex-col bg-background relative">
       <header className="sticky top-0 z-30 flex items-center justify-between px-5 py-3 bg-background/80 backdrop-blur border-b">
-        <Link href="/" className="text-lg font-serif font-bold tracking-tight">
+        <Link href="/" className="text-h4 font-serif font-bold">
           SeeDAO
         </Link>
         {user ? (
@@ -24,7 +24,7 @@ export async function UserShell({ children }: { children: React.ReactNode }) {
         ) : (
           <Link
             href="/login"
-            className="text-sm text-primary font-medium hover:underline"
+            className="text-body text-primary font-medium hover:underline"
           >
             登录
           </Link>

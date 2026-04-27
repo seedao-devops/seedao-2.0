@@ -41,8 +41,8 @@ export default async function AdminDashboardPage() {
   return (
     <div className="space-y-6">
       <div className="space-y-1">
-        <h1 className="text-2xl font-serif font-bold">管理总览</h1>
-        <p className="text-sm text-muted-foreground">
+        <h1>管理总览</h1>
+        <p className="text-body text-muted-foreground">
           快速查看待办事项与系统当前状态。
         </p>
       </div>
@@ -54,8 +54,8 @@ export default async function AdminDashboardPage() {
                 <Icon className="size-6" />
               </div>
               <div>
-                <div className="text-2xl font-bold font-serif">{value}</div>
-                <div className="text-xs text-muted-foreground">{label}</div>
+                <div className="text-h2 font-serif">{value}</div>
+                <div className="text-caption text-muted-foreground">{label}</div>
               </div>
             </Card>
           </Link>

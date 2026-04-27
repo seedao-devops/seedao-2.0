@@ -22,7 +22,7 @@ const NAV = [
 export function AdminSidebar() {
   const pathname = usePathname();
   return (
-    <nav className="flex-1 px-3 py-4 space-y-1 text-sm">
+    <nav className="flex-1 px-3 py-4 space-y-1 text-body">
       {NAV.map(({ href, label, icon: Icon }) => {
         const active = pathname === href || pathname.startsWith(`${href}/`);
         return (

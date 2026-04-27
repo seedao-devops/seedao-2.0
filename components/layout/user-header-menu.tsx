@@ -40,7 +40,7 @@ export function UserHeaderMenu({ identity }: { identity: string }) {
         </button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" sideOffset={8} className="w-52">
-        <DropdownMenuLabel className="font-normal text-xs text-muted-foreground truncate">
+        <DropdownMenuLabel className="font-normal text-caption text-muted-foreground truncate">
           {identity}
         </DropdownMenuLabel>
         <DropdownMenuSeparator />

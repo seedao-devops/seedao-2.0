@@ -66,8 +66,8 @@ export function LoginForm() {
   return (
     <div className="space-y-8 pt-2">
       <div className="space-y-2">
-        <h1 className="text-3xl font-serif font-bold">欢迎回来</h1>
-        <p className="text-sm text-muted-foreground">登录后查看你的旅程</p>
+        <h1>欢迎回来</h1>
+        <p className="text-body text-muted-foreground">登录后查看你的旅程</p>
       </div>
       <Tabs value={tab} onValueChange={(v) => setTab(v as "phone" | "email")}>
         <TabsList className="grid grid-cols-2 w-full">
@@ -142,7 +142,7 @@ export function LoginForm() {
           </form>
         </Form>
       </Tabs>
-      <p className="text-sm text-center text-muted-foreground">
+      <p className="text-body text-center text-muted-foreground">
         还没有账户？
         <Link href="/register" className="text-primary font-medium ml-1 hover:underline">
           申请加入

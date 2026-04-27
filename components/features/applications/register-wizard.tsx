@@ -107,8 +107,8 @@ export function RegisterWizard() {
   return (
     <div className="space-y-7 pt-2">
       <div className="space-y-2">
-        <h1 className="text-3xl font-serif font-bold">申请加入 SeeDAO</h1>
-        <p className="text-sm text-muted-foreground">
+        <h1>申请加入 SeeDAO</h1>
+        <p className="text-body text-muted-foreground">
           完成下面三步后，社区管理员会在 1-3 个工作日内回复你
         </p>
       </div>
@@ -177,7 +177,7 @@ export function RegisterWizard() {
             <Button type="submit" className="w-full">
               下一步
             </Button>
-            <p className="text-center text-sm text-muted-foreground">
+            <p className="text-center text-body text-muted-foreground">
               已有账户？{" "}
               <Link href="/login" className="text-foreground font-medium hover:underline">
                 登录
@@ -272,8 +272,8 @@ export function RegisterWizard() {
       {step === 2 ? (
         <div className="space-y-5">
           <div className="rounded-xl border bg-card p-5 space-y-3">
-            <h3 className="font-serif text-lg font-semibold">最后一步：完成会费付款</h3>
-            <p className="text-sm text-muted-foreground leading-relaxed">
+            <h3>最后一步：完成会费付款</h3>
+            <p className="text-body text-muted-foreground leading-relaxed">
               点击下方链接前往支付页面（小程序 / 公众号）完成付款。回到此处后点击「我已付款」，
               我们将开始审核你的申请。
             </p>
@@ -307,7 +307,7 @@ function Stepper({ step }: { step: number }) {
           <li key={label} className="flex items-center gap-2">
             <div
               className={cn(
-                "size-7 rounded-full grid place-items-center text-xs border",
+                "size-7 rounded-full grid place-items-center text-caption border",
                 done && "bg-primary text-primary-foreground border-primary",
                 active && !done && "border-primary text-primary",
                 !done && !active && "border-border text-muted-foreground",
@@ -317,7 +317,7 @@ function Stepper({ step }: { step: number }) {
             </div>
             <span
               className={cn(
-                "text-sm",
+                "text-body",
                 active ? "text-foreground font-medium" : "text-muted-foreground",
               )}
             >

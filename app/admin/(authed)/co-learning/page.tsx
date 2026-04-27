@@ -7,8 +7,8 @@ export default async function AdminCoLearningPage() {
   return (
     <div className="space-y-5">
       <div className="space-y-1">
-        <h1 className="text-2xl font-serif font-bold">共学活动管理</h1>
-        <p className="text-sm text-muted-foreground">
+        <h1>共学活动管理</h1>
+        <p className="text-body text-muted-foreground">
           维护体验课、系列课和师徒制活动。
         </p>
       </div>

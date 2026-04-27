@@ -10,8 +10,8 @@ export default async function AdminBasesPage() {
     <div className="space-y-5">
       <div className="flex items-center justify-between">
         <div className="space-y-1">
-          <h1 className="text-2xl font-serif font-bold">基地管理</h1>
-          <p className="text-sm text-muted-foreground">
+          <h1>基地管理</h1>
+          <p className="text-body text-muted-foreground">
             维护基地的基本信息、在地生活、技能、项目、时间线等。
           </p>
         </div>

@@ -16,7 +16,7 @@ export function JourneyClient() {
   return (
     <div className="px-5 pt-4 pb-8 space-y-5">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-serif font-bold">我的旅程</h1>
+        <h1>我的旅程</h1>
         <Button asChild size="sm" variant="outline">
           <Link href="/account">编辑</Link>
         </Button>

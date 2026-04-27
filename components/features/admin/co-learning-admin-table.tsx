@@ -119,7 +119,7 @@ export function CoLearningAdminTable({
           <TableBody>
             {events.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={7} className="text-center text-sm text-muted-foreground py-12">
+                <TableCell colSpan={7} className="text-center text-body text-muted-foreground py-12">
                   暂无活动
                 </TableCell>
               </TableRow>
@@ -145,7 +145,7 @@ export function CoLearningAdminTable({
                       ))}
                     </div>
                   </TableCell>
-                  <TableCell className="text-xs text-muted-foreground">
+                  <TableCell className="text-caption text-muted-foreground">
                     {e.period.start} → {e.period.end}
                   </TableCell>
                   <TableCell className="text-right space-x-1">

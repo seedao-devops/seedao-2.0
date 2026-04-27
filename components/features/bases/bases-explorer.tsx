@@ -75,12 +75,12 @@ export function BasesExplorer() {
           >
             筛选 {tags.length + skills.length ? `(${tags.length + skills.length})` : ""}
           </Button>
-          <span className="text-xs text-muted-foreground">{filtered.length} 个基地</span>
+          <span className="text-caption text-muted-foreground">{filtered.length} 个基地</span>
         </div>
         {showFilters ? (
           <div className="space-y-3 pb-1">
             <div className="space-y-1.5">
-              <p className="text-xs font-medium text-muted-foreground">基地类型</p>
+              <p className="text-caption font-medium text-muted-foreground">基地类型</p>
               <TagPicker
                 options={BASE_TAGS}
                 value={tags as readonly string[] as string[]}
@@ -88,7 +88,7 @@ export function BasesExplorer() {
               />
             </div>
             <div className="space-y-1.5">
-              <p className="text-xs font-medium text-muted-foreground">技能</p>
+              <p className="text-caption font-medium text-muted-foreground">技能</p>
               <TagPicker
                 options={SKILL_TAGS}
                 value={skills as readonly string[] as string[]}
@@ -122,7 +122,7 @@ export function BasesExplorer() {
 
       <ul className="space-y-3">
         {!isLoading && filtered.length === 0 ? (
-          <Card className="p-8 text-center text-sm text-muted-foreground">
+          <Card className="p-8 text-center text-body text-muted-foreground">
             没有符合条件的基地
           </Card>
         ) : null}
@@ -136,12 +136,12 @@ export function BasesExplorer() {
                   </div>
                   <div className="space-y-1.5 min-w-0">
                     <div className="flex items-center gap-2">
-                      <h3 className="font-serif font-semibold">{b.name}</h3>
-                      <span className="text-xs text-muted-foreground">
+                      <h4 className="m-0">{b.name}</h4>
+                      <span className="text-caption text-muted-foreground">
                         {b.province} · {b.city}
                       </span>
                     </div>
-                    <p className="text-sm text-muted-foreground line-clamp-2">{b.description}</p>
+                    <p className="text-body text-muted-foreground line-clamp-2">{b.description}</p>
                     <div className="flex flex-wrap gap-1 pt-0.5">
                       {b.tags.slice(0, 4).map((t) => (
                         <Badge key={t} variant="secondary" className="text-[10px] py-0 px-1.5">

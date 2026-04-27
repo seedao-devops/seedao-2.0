@@ -93,7 +93,7 @@ export function ApplicationsTable({ applications }: { applications: Row[] }) {
           <TableBody>
             {applications.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={6} className="text-center text-sm text-muted-foreground py-12">
+                <TableCell colSpan={6} className="text-center text-body text-muted-foreground py-12">
                   暂无申请
                 </TableCell>
               </TableRow>
@@ -125,7 +125,7 @@ export function ApplicationsTable({ applications }: { applications: Row[] }) {
               <SheetHeader>
                 <SheetTitle>申请详情 — {active.nickname}</SheetTitle>
               </SheetHeader>
-              <div className="space-y-4 mt-5 text-sm">
+              <div className="space-y-4 mt-5 text-body">
                 <Field label="联系方式" value={active.contact} />
                 <Field label="提交时间" value={new Date(active.submittedAt).toLocaleString("zh-CN")} />
                 <Field label="付款状态" value={PAYMENT_STATUS_LABELS[active.paymentStatus]} />
@@ -138,7 +138,7 @@ export function ApplicationsTable({ applications }: { applications: Row[] }) {
                 {active.reviewStatus === "PENDING" ? (
                   <>
                     <div className="space-y-2 pt-3 border-t">
-                      <p className="text-xs font-medium text-muted-foreground">拒绝理由</p>
+                      <p className="text-caption font-medium text-muted-foreground">拒绝理由</p>
                       <Textarea
                         rows={3}
                         value={reason}
@@ -170,7 +170,7 @@ export function ApplicationsTable({ applications }: { applications: Row[] }) {
 function Field({ label, value, multiline }: { label: string; value: string; multiline?: boolean }) {
   return (
     <div className="space-y-1">
-      <p className="text-xs font-medium text-muted-foreground">{label}</p>
+      <p className="text-caption font-medium text-muted-foreground">{label}</p>
       <p className={multiline ? "whitespace-pre-line" : ""}>{value}</p>
     </div>
   );

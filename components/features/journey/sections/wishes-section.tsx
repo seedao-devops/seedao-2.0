@@ -100,7 +100,7 @@ export function WishesSection() {
             />
             <div className="space-y-3">
               {wishes.fields.length === 0 ? (
-                <p className="text-sm text-muted-foreground text-center py-6">
+                <p className="text-body text-muted-foreground text-center py-6">
                   还没有添加想学的技能
                 </p>
               ) : null}
