@@ -69,8 +69,10 @@ Wraps every page in `app/admin/(authed)/`. Desktop-first, fixed sidebar.
   - Skill / level filters
   - Event cards (name, instructor, base, period, level badge)
 
-### `/share/[id]` — Public profile — `app/(public)/share/[id]/page.tsx`
+### `/share/[id]` — Public profile — `app/share/[id]/page.tsx`
 - [ ] **`JourneyView`** (read-only mode, server-filtered by visibility) — `components/features/journey/journey-view.tsx`
+- [ ] Sticky bottom CTA "加入 SeeDAO" → `/`
+- Uses dedicated `app/share/layout.tsx` (slim brand header, no `UserBottomNav`)
 
 ---
 

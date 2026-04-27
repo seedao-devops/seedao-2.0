@@ -47,7 +47,7 @@
 
 | # | 步骤                                       | 页面 / UI 组件                                                                | API 接口                            | UI  | API | Wired | Test |
 |---|--------------------------------------------|-------------------------------------------------------------------------------|-------------------------------------|-----|-----|-------|------|
-| 1 | 通过二维码 / 链接打开 `/share/[id]`        | [`app/(public)/share/[id]/page.tsx`](../app/(public)/share/[id]/page.tsx)、`JourneyView`(只读) | `GET /api/journey/share/[id]`       | [ ] | [ ] | [ ]   | [ ]  |
+| 1 | 通过二维码 / 链接打开 `/share/[id]`        | [`app/share/[id]/page.tsx`](../app/share/[id]/page.tsx)、`JourneyView`(只读) | `GET /api/journey/share/[id]`       | [ ] | [ ] | [ ]   | [ ]  |
 | 2 | 确认服务端已剥离不可见字段                 | `JourneyView` 遵守 `fieldVisibility` 设置                                     | 路由处理器中完成服务端过滤          | [ ] | [ ] | [ ]   | [ ]  |
 
 ---

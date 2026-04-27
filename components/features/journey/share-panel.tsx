@@ -1,15 +1,22 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { QRCodeSVG } from "qrcode.react";
-import { Copy, Save } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { QRCodeCanvas } from "qrcode.react";
+import { Copy, Download, Save } from "lucide-react";
 import { toast } from "sonner";
 import { ApiError, apiPut } from "@/lib/api-client";
 import { useJourney } from "@/lib/features/journey/hooks";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
 import type { FieldVisibility } from "@/lib/features/_shared/fake-db";
 
 const ROWS: { key: keyof FieldVisibility; label: string }[] = [
@@ -33,6 +40,7 @@ export function SharePanel({
   const [visibility, setVisibility] = useState<FieldVisibility>(initialVisibility);
   const [saving, setSaving] = useState(false);
   const [shareUrl, setShareUrl] = useState("");
+  const qrWrapperRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -68,6 +76,22 @@ export function SharePanel({
     toast.success("链接已复制");
   }
 
+  function download() {
+    const canvas = qrWrapperRef.current?.querySelector("canvas");
+    if (!canvas) {
+      toast.error("二维码未就绪，请稍后重试");
+      return;
+    }
+    const url = canvas.toDataURL("image/png");
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `seedao-${userId}.png`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    toast.success("二维码已下载");
+  }
+
   return (
     <div className="space-y-4">
       <Card className="p-5 space-y-3">
@@ -92,28 +116,53 @@ export function SharePanel({
         </Button>
       </Card>
 
-      <Dialog>
-        <DialogTrigger asChild>
+      <Sheet>
+        <SheetTrigger asChild>
           <Button variant="outline" className="w-full">
             生成分享二维码
           </Button>
-        </DialogTrigger>
-        <DialogContent className="sm:max-w-sm">
-          <DialogHeader>
-            <DialogTitle>分享你的旅程</DialogTitle>
-          </DialogHeader>
-          <div className="grid place-items-center py-2">
-            {shareUrl ? (
-              <QRCodeSVG value={shareUrl} size={208} bgColor="transparent" />
-            ) : null}
+        </SheetTrigger>
+        <SheetContent side="bottom" className="gap-0">
+          <div
+            aria-hidden
+            className="sticky top-0 z-10 flex justify-center bg-background pt-2.5 pb-1"
+          >
+            <div className="h-1 w-10 rounded-full bg-muted-foreground/40" />
           </div>
-          <p className="text-caption text-muted-foreground break-all text-center">{shareUrl}</p>
-          <Button variant="outline" className="w-full" onClick={copy}>
-            <Copy className="size-4" />
-            复制链接
-          </Button>
-        </DialogContent>
-      </Dialog>
+          <SheetHeader className="sticky top-[18px] z-10 border-b bg-background px-5 pt-2 pb-3 text-left">
+            <SheetTitle>分享你的旅程</SheetTitle>
+            <SheetDescription className="sr-only">
+              扫描二维码或复制链接，把你的旅程分享给朋友。
+            </SheetDescription>
+          </SheetHeader>
+          <div className="px-5 py-5 pb-[max(1.5rem,env(safe-area-inset-bottom))] space-y-4">
+            <div ref={qrWrapperRef} className="grid place-items-center py-2">
+              {shareUrl ? (
+                <QRCodeCanvas
+                  value={shareUrl}
+                  size={208}
+                  bgColor="#ffffff"
+                  fgColor="#000000"
+                  marginSize={2}
+                />
+              ) : null}
+            </div>
+            <p className="text-caption text-muted-foreground break-all text-center">
+              {shareUrl}
+            </p>
+            <div className="space-y-2">
+              <Button className="w-full" onClick={download} disabled={!shareUrl}>
+                <Download className="size-4" />
+                下载二维码
+              </Button>
+              <Button variant="outline" className="w-full" onClick={copy}>
+                <Copy className="size-4" />
+                复制链接
+              </Button>
+            </div>
+          </div>
+        </SheetContent>
+      </Sheet>
     </div>
   );
 }
