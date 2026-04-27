@@ -22,10 +22,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { EditSheet } from "@/components/ui/edit-sheet";
 import {
   ArrayCard,
   ArraySectionHeader,
-  EditSheet,
   SaveButton,
   SectionCard,
   saveSlice,

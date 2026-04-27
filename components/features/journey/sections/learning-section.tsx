@@ -7,10 +7,10 @@ import { z } from "zod";
 import { useJourney } from "@/lib/features/journey/hooks";
 import { useCoLearningEvents } from "@/lib/features/co-learning/hooks";
 import { Form } from "@/components/ui/form";
+import { EditSheet } from "@/components/ui/edit-sheet";
 import {
   ArrayCard,
   ArraySectionHeader,
-  EditSheet,
   EventPickerField,
   SaveButton,
   SectionCard,

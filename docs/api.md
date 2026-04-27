@@ -77,11 +77,13 @@ User signals "I've paid" — flips `paymentStatus` from `UNPAID` to `PAID`. (In 
 ## Journey — `app/api/journey/`
 
 ### `GET /api/journey/me`, `PUT /api/journey/me`
-Authenticated. Get / upsert the current user's journey. Auto-creates a default profile on first GET.
+Authenticated **and** application-approved members only. Get / upsert the current user's journey. Auto-creates a default profile on first GET.
 
 - GET 200 → `{ journey: Journey }`
 - PUT body: full `Journey` payload (validated by `journeySchema`)
 - PUT 200 → `{ journey }`
+- 401 `UNAUTHORIZED` if no session
+- 403 `APPLICATION_NOT_APPROVED` if the user is signed in but their application is missing or `reviewStatus !== "APPROVED"`
 
 ### `GET /api/journey/share/[id]`
 Public. Returns a journey filtered by the owner's `fieldVisibility`. Hidden fields are stripped server-side — never exposed to the client.

@@ -9,9 +9,7 @@ import {
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import {
-  Sheet, SheetContent, SheetHeader, SheetTitle,
-} from "@/components/ui/sheet";
+import { EditSheet } from "@/components/ui/edit-sheet";
 import { Textarea } from "@/components/ui/textarea";
 import { ApiError, apiPost } from "@/lib/api-client";
 import {
@@ -118,51 +116,49 @@ export function ApplicationsTable({ applications }: { applications: Row[] }) {
         </Table>
       </div>
 
-      <Sheet open={Boolean(active)} onOpenChange={(o) => !o && setActive(null)}>
-        <SheetContent className="overflow-y-auto sm:max-w-lg">
-          {active ? (
-            <>
-              <SheetHeader>
-                <SheetTitle>申请详情 — {active.nickname}</SheetTitle>
-              </SheetHeader>
-              <div className="space-y-4 mt-5 text-body">
-                <Field label="联系方式" value={active.contact} />
-                <Field label="提交时间" value={new Date(active.submittedAt).toLocaleString("zh-CN")} />
-                <Field label="付款状态" value={PAYMENT_STATUS_LABELS[active.paymentStatus]} />
-                <Field label="审核状态" value={REVIEW_STATUS_LABELS[active.reviewStatus]} />
-                <Field label="自我介绍" value={active.selfIntro} multiline />
-                <Field label="兴趣标签" value={active.interestTags.join("、")} />
-                {active.portfolio ? <Field label="作品/项目" value={active.portfolio} multiline /> : null}
-                {active.rejectReason ? <Field label="拒绝理由" value={active.rejectReason} multiline /> : null}
+      <EditSheet
+        open={Boolean(active)}
+        onOpenChange={(o) => !o && setActive(null)}
+        title={active ? `申请详情 — ${active.nickname}` : "申请详情"}
+        description="查看申请信息并对待审核申请进行通过 / 拒绝操作"
+      >
+        {active ? (
+          <div className="space-y-4 text-body">
+            <Field label="联系方式" value={active.contact} />
+            <Field label="提交时间" value={new Date(active.submittedAt).toLocaleString("zh-CN")} />
+            <Field label="付款状态" value={PAYMENT_STATUS_LABELS[active.paymentStatus]} />
+            <Field label="审核状态" value={REVIEW_STATUS_LABELS[active.reviewStatus]} />
+            <Field label="自我介绍" value={active.selfIntro} multiline />
+            <Field label="兴趣标签" value={active.interestTags.join("、")} />
+            {active.portfolio ? <Field label="作品/项目" value={active.portfolio} multiline /> : null}
+            {active.rejectReason ? <Field label="拒绝理由" value={active.rejectReason} multiline /> : null}
 
-                {active.reviewStatus === "PENDING" ? (
-                  <>
-                    <div className="space-y-2 pt-3 border-t">
-                      <p className="text-caption font-medium text-muted-foreground">拒绝理由</p>
-                      <Textarea
-                        rows={3}
-                        value={reason}
-                        onChange={(e) => setReason(e.target.value)}
-                        placeholder="若拒绝，请填写理由（10-500 字）"
-                      />
-                    </div>
-                    <div className="flex gap-2 pt-1">
-                      <Button onClick={approve} disabled={busy} className="flex-1">
-                        <Check className="size-4" />
-                        通过
-                      </Button>
-                      <Button variant="destructive" onClick={reject} disabled={busy} className="flex-1">
-                        <X className="size-4" />
-                        拒绝
-                      </Button>
-                    </div>
-                  </>
-                ) : null}
-              </div>
-            </>
-          ) : null}
-        </SheetContent>
-      </Sheet>
+            {active.reviewStatus === "PENDING" ? (
+              <>
+                <div className="space-y-2 pt-3 border-t">
+                  <p className="text-caption font-medium text-muted-foreground">拒绝理由</p>
+                  <Textarea
+                    rows={3}
+                    value={reason}
+                    onChange={(e) => setReason(e.target.value)}
+                    placeholder="若拒绝，请填写理由（10-500 字）"
+                  />
+                </div>
+                <div className="flex gap-2 pt-1">
+                  <Button onClick={approve} disabled={busy} className="flex-1">
+                    <Check className="size-4" />
+                    通过
+                  </Button>
+                  <Button variant="destructive" onClick={reject} disabled={busy} className="flex-1">
+                    <X className="size-4" />
+                    拒绝
+                  </Button>
+                </div>
+              </>
+            ) : null}
+          </div>
+        ) : null}
+      </EditSheet>
     </>
   );
 }

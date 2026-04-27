@@ -15,10 +15,10 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+import { EditSheet } from "@/components/ui/edit-sheet";
 import {
   ArrayCard,
   ArraySectionHeader,
-  EditSheet,
   EventPickerField,
   SaveButton,
   SectionCard,
